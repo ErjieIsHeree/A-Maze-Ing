@@ -36,7 +36,7 @@ class ExampleMazeGenerator(MazeGenerator):
 class MazeFactory():
     def create_generator(
         self,
-        config: Configuration | None = None
+        config: Configuration
     ) -> MazeGenerator:
         ...
     ...

@@ -1,14 +1,21 @@
+
 from collections.abc import Callable
 import sys
 
 from .configuration import get_config
 from .maze_generator import Maze, MazeFactory, MazeGenerator
-from .write_output import write_output
-from .visualizator import visualize
 
 
-def generate_maze(
-    maze_generator: MazeGenerator = MazeFactory().create_generator()
+# TODO
+def write_output(maze: Maze) -> None: ...
+
+
+# TODO
+def visualize(generate_maze: Callable) -> None: ...
+
+
+def create_maze_generator(
+    maze_generator: MazeGenerator
 ) -> Callable:
     def _() -> Maze:
         maze: Maze = maze_generator.generate()
@@ -17,11 +24,8 @@ def generate_maze(
     return _
 
 
-# TODO
-def is_valid_txt(file: str) -> bool: ...
-
-
-if __name__ == "__main__" and len(sys.argv) == 2 and is_valid_txt(sys.argv[1]):
+if __name__ == "__main__" and len(sys.argv) == 2:
     maze_generator = MazeFactory().create_generator(get_config(sys.argv[1]))
-    visualize(generate_maze(maze_generator))
-    pass
+    visualize(create_maze_generator(maze_generator))
+elif __name__ == "__main__":
+    print("Please enter only the file name.")

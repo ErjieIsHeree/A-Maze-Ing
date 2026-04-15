@@ -1,3 +1,4 @@
+
 from dataclasses import dataclass
 
 
@@ -15,4 +16,4 @@ class Configuration:
 
 
 # TODO
-def get_config(file: str = "") -> Configuration: ...
+def get_config(file: str) -> Configuration: ...

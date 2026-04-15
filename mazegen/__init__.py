@@ -1,5 +1,8 @@
-from .a_maze_ing import generate_maze
+
+from .a_maze_ing import create_maze_generator
+from .maze_generator import MazeFactory
+from .c
 
 __all__ = [
-    "generate_maze"
+    "create_maze_generator"
 ]
