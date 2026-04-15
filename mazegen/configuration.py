@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(frozen=True)
 class Configuration:
     WIDTH: int
     HEIGHT: int
@@ -12,6 +12,7 @@ class Configuration:
     PERFECT: bool
     SEED: str
     ALGORITHM: str
+    EXTRA: dict | None
     pass
 
 
