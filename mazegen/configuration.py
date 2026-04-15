@@ -10,11 +10,11 @@ class Configuration:
     EXIT: tuple[int, int]
     OUTPUT_FILE: str
     PERFECT: bool
-    SEED: str
+    SEED: float
     ALGORITHM: str
     EXTRA: dict | None
     pass
 
 
-# TODO
+# TODO all (ZETA DOING)
 def get_config(file: str) -> Configuration: ...

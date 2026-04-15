@@ -6,11 +6,21 @@ from .configuration import get_config
 from .maze_generator import Maze, MazeFactory, MazeGenerator
 
 
-# TODO
-def write_output(maze: Maze, file: str) -> None: ...
+# TODO docstring
+def write_output(maze_info: Maze, file: str) -> None:
+    try:
+        with open(file, "w") as f:
+            f.write(maze_info.maze)
+            f.write("\n")
+            f.write(f"{maze_info.entry[0]}, {maze_info.entry[1]}")
+            f.write(f"{maze_info.exit[0]}, {maze_info.exit[1]}")
+            f.write(maze_info.maze_solution)
+    except Exception as err:
+        print(f"[ERROR]: {err}")
+    return
 
 
-# TODO
+# TODO all
 def visualize(generate_maze: Callable) -> None: ...
 
 

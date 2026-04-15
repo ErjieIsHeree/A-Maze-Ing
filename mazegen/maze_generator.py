@@ -21,7 +21,11 @@ class Maze:
     pass
 
 
-# TODO
+# TODO all
+def maze_solutioner(maze: str) -> str: ...
+
+
+# TODO all
 class MazeGenerator(ABC):
     def __init__(self, config: Configuration) -> None:
         if not self.is_valid_config(config):
@@ -51,7 +55,7 @@ class ExampleMazeGenerator(MazeGenerator):
     pass
 
 
-# TODO
+# TODO all
 class MazeFactory():
     def create_generator(
         self,
