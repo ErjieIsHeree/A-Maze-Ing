@@ -1,0 +1,14 @@
+WIDTH=
+HEIGHT=
+ENTRY=
+EXIT=
+OUTPUT_FILE=
+PERFECT=
+
+
+# WIDTH Maze width (number of cells)    example: WIDTH=20
+# HEIGHT Maze height                    example: HEIGHT=15
+# ENTRY Entry coordinates (x,y)         example: ENTRY=0,0
+# EXIT Exit coordinates (x,y)           example: EXIT=19,14
+# OUTPUT_FILE Output filename           example: OUTPUT_FILE=maze.txt
+# Is the maze perfect?                  example: PERFECT=True
