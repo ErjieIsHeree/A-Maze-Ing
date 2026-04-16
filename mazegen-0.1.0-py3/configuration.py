@@ -2,8 +2,6 @@ import sys
 from typing import List, Optional, Dict
 from dataclasses import dataclass
 
-# TODO all (ZETA DOING)
-
 
 @dataclass(frozen=True)
 class Configuration:
@@ -11,11 +9,11 @@ class Configuration:
     HEIGHT: int
     ENTRY: tuple[int, int]
     EXIT: tuple[int, int]
-    OUTPUT_FILE: str
     PERFECT: bool
     SEED: Optional[float]
     ALGORITHM: str
-    EXTRA: Dict[str, str] | None
+    OUTPUT_FILE: str = "maze.txt"
+    EXTRA: Dict[str, str] | None = None
     pass
 
 
