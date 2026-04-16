@@ -6,17 +6,35 @@ from .configuration import get_config
 from .maze_generator import Maze, MazeFactory, MazeGenerator
 
 
-# TODO docstring
-def write_output(maze_info: Maze, file: str) -> None:
+def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
+    """Write maze data to a file.
+
+    Writes the maze map, entry and exit coordinates, and solution
+    to the specified file. Prints an error message if the operation fails.
+
+    Args:
+        maze_info (Maze): Object containing the maze map, entry/exit points,
+            and solution.
+        file (str): Path to the output file.
+    """
     try:
         with open(file, "w") as f:
-            f.write(maze_info.maze)
+            f.write(maze_info.maze_map)
             f.write("\n")
             f.write(f"{maze_info.entry[0]}, {maze_info.entry[1]}")
             f.write(f"{maze_info.exit[0]}, {maze_info.exit[1]}")
-            f.write(maze_info.maze_solution)
+            if is_pro:
+                text = "\n".join(
+                    f"Solution {i}: {solution}"
+                    for i, solution in enumerate(maze_info.maze_solutions, 1)
+                )
+            else:
+                text = maze_info.maze_solutions[0]
+            f.write(text)
     except Exception as err:
-        print(f"[ERROR]: {err}")
+        print(f"""[Error in: {__file__} at line {sys._getframe().f_lineno}]:
+    {err}""")
+        sys.exit(1)
     return
 
 
