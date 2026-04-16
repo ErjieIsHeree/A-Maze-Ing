@@ -3,7 +3,7 @@ from collections.abc import Callable
 import sys
 
 from .configuration import get_config
-from .maze_generator import Maze, MazeFactory, MazeGenerator
+from .maze_generator import Maze, MazeGeneratorFactory, MazeGenerator
 
 
 def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
@@ -70,7 +70,7 @@ def create_maze_pipeline(
 
 if __name__ == "__main__" and len(sys.argv) == 2:
     config = get_config(sys.argv[1])
-    maze_generator = MazeFactory().create_generator(config)
+    maze_generator = MazeGeneratorFactory().create_generator(config)
     visualize(create_maze_pipeline(maze_generator, config.OUTPUT_FILE))
 elif __name__ == "__main__":
     print("Please enter only the file name.")
