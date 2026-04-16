@@ -32,8 +32,7 @@ def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
                 text = maze_info.maze_solutions[0]
             f.write(text)
     except Exception as err:
-        print(f"""[Error in: {__file__} at line {sys._getframe().f_lineno}]:
-    {err}""")
+        print(f"[Error]: {err}")
         sys.exit(1)
     return
 
@@ -42,10 +41,27 @@ def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
 def visualize(generate_maze: Callable) -> None: ...
 
 
-def create_maze_generator(
+def create_maze_pipeline(
     maze_generator: MazeGenerator, output_file: str
 ) -> Callable:
+    """Returns a function to export and get a Maze data-class
+
+    The Maze data-class contains all the information for a user about a maze
+
+    Args:
+        maze_generator (MazeGenerator): the maze generator used to generate
+            mazes
+        output_file (str): the name of the file to export
+
+    Returns:
+        Callable[[], Maze]: The function to call
+    """
     def _() -> Maze:
+        """This function generates, exports and returns a Maze data-class
+
+        Returns:
+            Maze: The Maze dataclass with all user information of the maze
+        """
         maze: Maze = maze_generator.generate()
         write_output(maze, output_file)
         return maze
@@ -55,6 +71,6 @@ def create_maze_generator(
 if __name__ == "__main__" and len(sys.argv) == 2:
     config = get_config(sys.argv[1])
     maze_generator = MazeFactory().create_generator(config)
-    visualize(create_maze_generator(maze_generator, config.OUTPUT_FILE))
+    visualize(create_maze_pipeline(maze_generator, config.OUTPUT_FILE))
 elif __name__ == "__main__":
     print("Please enter only the file name.")
