@@ -2,8 +2,8 @@
 from collections.abc import Callable
 import sys
 
-from .configuration import get_config
-from .maze_generator import Maze, MazeGeneratorFactory, MazeGenerator
+from .mazegen.configuration import get_config
+from .mazegen.maze_generator import Maze, MazeGeneratorFactory, MazeGenerator
 
 
 def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
