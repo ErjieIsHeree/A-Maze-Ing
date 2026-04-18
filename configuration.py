@@ -59,7 +59,7 @@ def get_config(file: str) -> Configuration:
         "ENTRY": "0,0",
         "EXIT": "19,14",
         "OUTPUT_FILE": "maze.txt",
-        "PERFECT": "True",
+        "PERFECT": "True",  # TODO hablar con zeta que cuando falten config basicos debe lanzar exception. sorry zeta
         "ALGORITHM": "dfs",   # cuidado caso perfect definido false pero algoritmo no definido
         "SEED": "None"
     }
