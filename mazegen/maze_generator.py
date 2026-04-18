@@ -119,6 +119,8 @@ class ExampleMazeGenerator(MazeGenerator):  # !! BORRAR ANTES DE ENTREGAR
 
 
 class Algorithms(Enum):
+    """A enumerator class for enumarating all possible Algorithms"""
+    DEFAULT = ExampleMazeGenerator
     EXAMPLE = ExampleMazeGenerator  # !! BORRAR ANTES DE ENTREGAR
     pass
 
@@ -126,7 +128,10 @@ class Algorithms(Enum):
 class MazeGeneratorFactory():
     """Instance used for creating Maze Generators"""
     @overload
-    def create_generator(self, config: MazeConfiguration) -> MazeGenerator:
+    def create_generator(
+        self,
+        CONFIG: MazeConfiguration = Field()
+    ) -> tuple[MazeGenerator, int]:
         """Creates the appropiate maze generator
 
         Args:
@@ -144,9 +149,9 @@ class MazeGeneratorFactory():
         EXIT: tuple[int, int] = Field(),
         PERFECT: bool = Field(default=False),
         SEED: float | None = Field(default=None),
-        ALGORITHM: str = Field(max_length=255, default=""),
+        ALGORITHM: str | None = Field(max_length=255, default=None),
         EXTRA: dict[str, str] | None = Field(default=None)
-    ) -> MazeGenerator:
+    ) -> tuple[MazeGenerator, int]:
         """Creates the appropiate maze generator
 
         Args:
@@ -158,10 +163,15 @@ class MazeGeneratorFactory():
             SEED (float | None): The seed used to create the maze
             ALGORITHM (str): The algorithm wanted to create the maze
             EXTRA (dict[str, str] | None): Extra data for others special mazes
+
+        Returns:
+            tuple[MazeGenerator, int]: The maze generator and a number
+                according to: 0 if the selected algorithm wasn't found or 1 if
+                it was found.
         """
         ...
 
-    def create_generator(self, *args, **kwargs) -> MazeGenerator:
+    def create_generator(self, *args, **kwargs) -> tuple[MazeGenerator, int]:
         """Creates the appropiate maze generator"""
         if len(args) == 1:
             config = args[0]
@@ -170,5 +180,5 @@ class MazeGeneratorFactory():
 
         for algorithm in Algorithms:
             if algorithm.name == config.ALGORITHM:
-                return algorithm.value(config)
-        raise Exception("Non existing algorithm")
+                return (algorithm.value(config), 1)
+        return (Algorithms.DEFAULT.value(config), 0)
