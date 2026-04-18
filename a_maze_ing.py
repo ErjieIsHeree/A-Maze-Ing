@@ -3,6 +3,7 @@ from collections.abc import Callable
 import sys
 
 from mazegen import MazeGeneratorFactory, MazeGenerator, Maze
+from .configuration import get_config
 
 from mlx import Mlx
 
