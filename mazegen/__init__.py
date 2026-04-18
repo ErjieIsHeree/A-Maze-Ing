@@ -1,8 +1,14 @@
 
-from .maze_generator import MazeGeneratorFactory
-from .configuration import Configuration
+from .maze_generator import (
+    MazeGeneratorFactory,
+    Maze,
+    MazeGenerator,
+    MazeConfiguration
+)
 
 __all__ = [
     "MazeGeneratorFactory",
-    "Configuration"
+    "MazeGenerator",
+    "Maze",
+    "MazeConfiguration"
 ]

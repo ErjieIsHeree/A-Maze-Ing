@@ -2,8 +2,9 @@
 from collections.abc import Callable
 import sys
 
-from .mazegen.configuration import get_config
-from .mazegen.maze_generator import Maze, MazeGeneratorFactory, MazeGenerator
+from mazegen import MazeGeneratorFactory, MazeGenerator, Maze
+
+from mlx import Mlx
 
 
 def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
@@ -38,7 +39,16 @@ def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
 
 
 # TODO all
-def visualize(generate_maze: Callable) -> None: ...
+def visualize(generate_maze: Callable) -> None:
+    """Use mlx to visualize a Maze object
+
+    Args:
+        generate_maze (Callable): A function that generates Maze objects
+
+    Returns:
+        None
+    """
+    return
 
 
 def create_maze_pipeline(

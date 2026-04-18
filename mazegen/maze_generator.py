@@ -1,37 +1,71 @@
 
-from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import overload
+from typing import overload, Self
+from pydantic import BaseModel, Field, model_validator, ConfigDict
 import sys
 
-from .configuration import Configuration
+
+class MazeConfiguration(BaseModel):
+    """Create a data-class with maze configuration data.
+
+    Args:
+        WIDTH (int): The width of the maze
+        HEIGHT (int): The height of the maze
+        ENTRY (tuple[int, int]): The entry point of the maze
+        EXIT (tuple[int, int]): The exit point of the maze
+        PERFECT (bool): If the maze has only one way to be completed
+        SEED (float | None): The seed used to create the maze
+        ALGORITHM (str): The algorithm wanted to create the maze
+        EXTRA (dict[str, str] | None): Extra data for others special mazes
+    """
+    model_config = ConfigDict(frozen=True)
+
+    WIDTH: int = Field()
+    HEIGHT: int = Field()
+    ENTRY: tuple[int, int] = Field()
+    EXIT: tuple[int, int] = Field()
+    PERFECT: bool = Field(default=False)
+    SEED: float | None = Field(default=None)
+    ALGORITHM: str | None = Field(max_length=255, default=None)
+    EXTRA: dict[str, str] | None = Field(default=None)
+    pass
 
 
-@dataclass(frozen=True)
-@dataclass
-class Maze:
+class Maze(BaseModel):
     """Create a data-class with information of a Maze.
+
+    ATTENTION this class isn't mean to be created outside. Unexpected errors
+    could be raised on it's creation.
 
     It contains all the information need for the user about the Maze
 
     Args:
         maze_map: str
-        maze_solution: str
         entry: tuple[int, int]
         exit: tuple[int, int]
     """
-    maze_map: str
-    maze_solutions: list[str] = field(init=False)
-    entry: tuple[int, int]
-    exit: tuple[int, int]
+    model_config = ConfigDict(frozen=True)
 
-    def __post_init__(self) -> None:
-        """Set the solution to the maze"""
-        object.__setattr__(self, "maze_solution", self.__maze_solutioneer())
-        return
+    maze_map: str = Field()
+    entry: tuple[int, int] = Field()
+    exit: tuple[int, int] = Field()
+    maze_solutions: list[str] = Field(init=False)
 
-    def __maze_solutioneer(self) -> list[str]:  # TODO this method
+    @model_validator(mode="after")
+    def set_solutions(self) -> Self:
+        """Set the maze solution.
+
+        Args:
+            None (None): Nothing
+
+        Returns:
+            Self: Need for model_validator
+        """
+        object.__setattr__(self, "maze_solutions", self.maze_solutioneer())
+        return self
+
+    def maze_solutioneer(self, maze_solutions: str | None = None) -> list[str]:  # TODO this method
         """Find the different paths to complete de maze.
 
         Returns:
@@ -44,10 +78,13 @@ class Maze:
 
 
 class MazeGenerator(ABC):
-    def __init__(self, config: Configuration) -> None:
+    """The maze generator creator"""
+    def __init__(self, config: MazeConfiguration) -> None:
+        """This is just the signature of a Maze Generator init"""
         self.config = config
+
         try:
-            self.__validate_config()
+            self.validate_config()
         except Exception as err:
             print(f"[ERROR]: {err}")
             sys.exit(1)
@@ -63,21 +100,21 @@ class MazeGenerator(ABC):
         ...
 
     @abstractmethod
-    def __validate_config(self) -> None:
+    def validate_config(self) -> None:
         """Validates if maze can be created with the actual configuration"""
         ...
     pass
 
 
 class ExampleMazeGenerator(MazeGenerator):  # !! BORRAR ANTES DE ENTREGAR
-    def __init__(self, config: Configuration) -> None:
+    def __init__(self, config: MazeConfiguration) -> None:
         super().__init__(config)
         return
 
     def generate(self) -> Maze:
-        return Maze("<MAPA_HEXADECIMAL>", (0, 0), (19, 24))
+        return Maze(maze_map="Hola", entry=(1, 1), exit=(16, 2))
 
-    def __validate_config(self) -> None: ...
+    def validate_config(self) -> None: ...
     pass
 
 
@@ -89,27 +126,26 @@ class Algorithms(Enum):
 class MazeGeneratorFactory():
     """Instance used for creating Maze Generators"""
     @overload
-    def create_generator(self, config: Configuration) -> MazeGenerator:
+    def create_generator(self, config: MazeConfiguration) -> MazeGenerator:
         """Creates the appropiate maze generator
 
         Args:
-            config (Configuration): The configuration data-class used to create
-                the appropiate maze
+            config (MazeConfiguration): The MazeConfiguration data-class used
+                to create the appropiate maze
         """
         ...
 
     @overload
     def create_generator(
         self,
-        WIDTH: int,
-        HEIGHT: int,
-        ENTRY: tuple[int, int],
-        EXIT: tuple[int, int],
-        OUTPUT_FILE: str,
-        PERFECT: bool,
-        SEED: float | None,
-        ALGORITHM: str,
-        EXTRA: dict[str, str] | None
+        WIDTH: int = Field(),
+        HEIGHT: int = Field(),
+        ENTRY: tuple[int, int] = Field(),
+        EXIT: tuple[int, int] = Field(),
+        PERFECT: bool = Field(default=False),
+        SEED: float | None = Field(default=None),
+        ALGORITHM: str = Field(max_length=255, default=""),
+        EXTRA: dict[str, str] | None = Field(default=None)
     ) -> MazeGenerator:
         """Creates the appropiate maze generator
 
@@ -118,7 +154,6 @@ class MazeGeneratorFactory():
             HEIGHT (int): The height of the maze
             ENTRY (tuple[int, int]): The entry point of the maze
             EXIT (tuple[int, int]): The exit point of the maze
-            OUTPUT_FILE (str): The width of the maze
             PERFECT (bool): If the maze has only one way to be completed
             SEED (float | None): The seed used to create the maze
             ALGORITHM (str): The algorithm wanted to create the maze
@@ -131,9 +166,9 @@ class MazeGeneratorFactory():
         if len(args) == 1:
             config = args[0]
         else:
-            config = Configuration(*args)
+            config = MazeConfiguration(**kwargs)
 
         for algorithm in Algorithms:
-            if algorithm.__name__ == config.ALGORITHM:
+            if algorithm.name == config.ALGORITHM:
                 return algorithm.value(config)
         raise Exception("Non existing algorithm")

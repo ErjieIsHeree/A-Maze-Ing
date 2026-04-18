@@ -1,28 +1,21 @@
 import sys
-from typing import List, Optional, Dict, Self
-from dataclasses import dataclass
-from pydantic import BaseModel, Field, model_validator
+from typing import List, Optional, Dict
+
+from pydantic import BaseModel, ConfigDict
 
 
-@dataclass(frozen=True)
 class Configuration(BaseModel):
-    WIDTH: int = Field(gt=0)
-    HEIGHT: int = Field(gt=0)
-    ENTRY: tuple[int, int] = Field(description="Entry: (x,y)")
-    EXIT: tuple[int, int] = Field(description="Exit: (x,y)")
-    PERFECT: bool = Field(default=False)
-    SEED: Optional[float] = Field(default=None)  # !! preguntar a Z si los seeds tienen formatos minimos
-    ALGORITHM: str = Field(max_length=255, default="")  # !! preguntar a zeta caso predeterminado
-    OUTPUT_FILE: str = Field(min_length=1, max_length=255, default="maze.txt")
-    EXTRA: Dict[str, str] | None = Field(default=None)
+    model_config = ConfigDict(frozen=True)
 
-    @model_validator(mode="after")
-    def check_points(self) -> Self:
-        for coordinate in self.ENTRY and self.EXIT:
-            if coordinate < 0:
-                raise ValueError("Entry or exit point has impossible values:"
-                                 "    Can not be negative.")
-        return self
+    WIDTH: int
+    HEIGHT: int
+    ENTRY: tuple[int, int]
+    EXIT: tuple[int, int]
+    PERFECT: bool
+    SEED: Optional[float]
+    ALGORITHM: str
+    OUTPUT_FILE: str
+    EXTRA: Dict[str, str] | None
     pass
 
 
