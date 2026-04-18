@@ -1,7 +1,7 @@
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import overload, Self
+from typing import overload, Self, Any
 from pydantic import BaseModel, Field, model_validator, ConfigDict
 import sys
 
@@ -125,7 +125,7 @@ class Algorithms(Enum):
     pass
 
 
-class MazeGeneratorFactory():
+class MazeGeneratorFactory(BaseModel):
     """Instance used for creating Maze Generators"""
     @overload
     def create_generator(
@@ -171,7 +171,9 @@ class MazeGeneratorFactory():
         """
         ...
 
-    def create_generator(self, *args, **kwargs) -> tuple[MazeGenerator, int]:
+    def create_generator(
+        self, *args: Any, **kwargs: Any
+    ) -> tuple[MazeGenerator, int]:
         """Creates the appropiate maze generator"""
         if len(args) == 1:
             config = args[0]

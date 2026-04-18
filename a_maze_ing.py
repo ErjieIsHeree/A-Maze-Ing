@@ -3,9 +3,7 @@ from collections.abc import Callable
 import sys
 
 from mazegen import MazeGeneratorFactory, MazeGenerator, Maze
-from .configuration import get_config
-
-from mlx import Mlx
+from configuration import get_config
 
 
 def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
@@ -40,7 +38,7 @@ def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
 
 
 # TODO all
-def visualize(generate_maze: Callable) -> None:
+def visualize(generate_maze: Callable[[], Maze]) -> None:
     """Use mlx to visualize a Maze object
 
     Args:
@@ -54,7 +52,7 @@ def visualize(generate_maze: Callable) -> None:
 
 def create_maze_pipeline(
     maze_generator: MazeGenerator, output_file: str
-) -> Callable:
+) -> Callable[[], Maze]:
     """Returns a function to export and get a Maze data-class
 
     The Maze data-class contains all the information for a user about a maze

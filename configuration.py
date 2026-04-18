@@ -19,15 +19,12 @@ class Configuration(BaseModel):
     pass
 
 
-def parse_coords(coords: str) -> tuple:
+def parse_coords(coords: str) -> tuple[int, int]:
     try:
         clist = coords.split(",")
         if len(clist) != 2:
             raise ValueError()
-        nlist = []
-        for c in clist:
-            nlist.append(int(c))
-        return tuple(nlist)
+        return (int(clist[0]), int(clist[1]))
     except ValueError:
         print(f"Error: Invalid syntax: {coords}. Coordinates must be "
               "only two numeric values and follow 'x,y'")
@@ -48,7 +45,7 @@ def parse_bool(txt: str) -> bool:
 def get_val(key: str, data: dict[str, str], defs: dict[str, str]) -> str:
     val = data.pop(key, "")
     if val == "":
-        return defs.get(key)
+        return defs.get(key, "")
     return val
 
 
