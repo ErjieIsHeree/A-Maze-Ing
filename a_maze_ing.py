@@ -3,6 +3,7 @@ from collections.abc import Callable
 import sys
 
 from mazegen import MazeGeneratorFactory, MazeGenerator, Maze
+from visualizator import visualize
 from configuration import get_config
 
 
@@ -34,19 +35,6 @@ def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
     except Exception as err:
         print(f"[Error]: {err}")
         sys.exit(1)
-    return
-
-
-# TODO all
-def visualize(generate_maze: Callable[[], Maze]) -> None:
-    """Use mlx to visualize a Maze object
-
-    Args:
-        generate_maze (Callable): A function that generates Maze objects
-
-    Returns:
-        None
-    """
     return
 
 
