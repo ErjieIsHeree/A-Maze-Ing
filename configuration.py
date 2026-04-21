@@ -1,25 +1,51 @@
 import sys
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 
 from pydantic import BaseModel, ConfigDict
 
 
 class Configuration(BaseModel):
+    """Stores the maze generation parameters.
+
+    Attributes:
+        WIDTH (int): Maze width in cells.
+        HEIGHT (int): Maze height in cells.
+        ENTRY (tuple[int, int]): Starting coordinates (x, y).
+        EXIT (tuple[int, int]): Ending coordinates (x, y).
+        OUTPUT_FILE (str): Path to the resulting maze file.
+        PERFECT (bool): Whether the maze is perfect (no loops).
+        SEED (Optional[float]): Seed for random number generation.
+        ALGORITHM (str): The generation algorithm to use.
+        EXTRA (Dict[str, str] | None): Additional non-mandatory parameters.
+    """
+
     model_config = ConfigDict(frozen=True)
 
     WIDTH: int
     HEIGHT: int
-    ENTRY: tuple[int, int]
-    EXIT: tuple[int, int]
+    ENTRY: Tuple[int, int]
+    EXIT: Tuple[int, int]
     PERFECT: bool
     SEED: Optional[float]
     ALGORITHM: str
     OUTPUT_FILE: str
-    EXTRA: Dict[str, str] | None
+    EXTRA: Optional[Dict[str, str]]
     pass
 
 
-def parse_coords(coords: str) -> tuple[int, int]:
+def parse_coords(coords: str) -> Tuple[int, int]:
+    """Parses a string of comma-separated coordinates into a tuple.
+
+    Args:
+        coords (str): String in 'x,y' format.
+
+    Returns:
+        Tuple[int, int]: A tuple containing the x and y integers.
+
+    Note:
+        Exits the program if the format is invalid or values are not integers.
+    """
+
     try:
         clist = coords.split(",")
         if len(clist) != 2:
@@ -32,6 +58,18 @@ def parse_coords(coords: str) -> tuple[int, int]:
 
 
 def parse_bool(txt: str) -> bool:
+    """Converts a string to a boolean value.
+
+    Args:
+        txt (str): String to convert ('true' or 'false').
+
+    Returns:
+        bool: True if txt is 'true', False if 'false'.
+
+    Note:
+        Exits the program if the value is not a valid boolean string.
+    """
+
     if txt.lower() == "true":
         return True
     elif txt.lower() == "false":
@@ -42,7 +80,18 @@ def parse_bool(txt: str) -> bool:
         sys.exit(1)
 
 
-def get_val(key: str, data: dict[str, str], defs: dict[str, str]) -> str:
+def get_val(key: str, data: Dict[str, str], defs: Dict[str, str]) -> str:
+    """Extracts a value from data, removing it, or returns a default.
+
+    Args:
+        key (str): The configuration key to look for.
+        data (Dict[str, str]): The current configuration dictionary.
+        defs (Dict[str, str]): Default values fallback.
+
+    Returns:
+        str: The value from data if present and not empty, otherwise default.
+    """
+
     val = data.pop(key, "")
     if val == "":
         return defs.get(key, "")
@@ -50,6 +99,20 @@ def get_val(key: str, data: dict[str, str], defs: dict[str, str]) -> str:
 
 
 def get_config(file: str) -> Configuration:
+    """Reads and validates a configuration file to create a Configuration object.
+
+    Args:
+        file (str): Path to the config.txt file.
+
+    Returns:
+        Configuration: An immutable dataclass with all validated parameters.
+
+    Note:
+        Validates mandatory keys, coordinate limits, and positive dimensions.
+        Exits the program with a specific error message
+        if any validation fails.
+    """
+
     defaults: Dict[str, str] = {
         "WIDTH": "20",
         "HEIGHT": "15",
