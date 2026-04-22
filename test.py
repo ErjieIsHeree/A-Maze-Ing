@@ -2,7 +2,17 @@ from collections.abc import Callable
 from pydantic import BaseModel, Field
 from enum import Enum
 
-from mazegen import Maze
+
+class Maze():
+    maze_map: str = "9515391539551795151151153\nEBABAE812853C1412BA812812\n96A8416A84545412AC4282C2A\nC3A83816A9395384453A82D02\n96842A852AC07AAD13A8283C2\nC1296C43AAB83AA92AA8686BA\n92E853968428444682AC12902\nAC3814452FA83FFF82C52C42A\n85684117AFC6857FAC1383D06\nC53AD043AFFFAFFF856AA8143\n91441294297FAFD501142C6BA\nAA912AC3843FAFFF82856D52A\n842A8692A92B8517C4451552A\n816AC384468285293917A9542\nC416928513C443A828456C3BA\n91416AA92C393A82801553AAA\nA81292AA814682C6A8693C6AA\nA8442C6C2C1168552C16A9542\n86956951692C1455416928552\nC545545456C54555545444556\n"
+    entry: tuple[int, int] = (1, 1)
+    exit: tuple[int, int] = (19, 14)
+    maze_solutions: list[str] = ["SWSESWSESWSSSEESEEENEESESEESSSEEESSSEEENNENEE"]
+    pass
+
+
+def f() -> Maze:
+    return Maze()
 
 
 class Wall(Enum):
@@ -216,9 +226,13 @@ def visualize(generate_maze: Callable[[], Maze]) -> None:
             case 2:
                 with_solution = not with_solution
             case 3:
-                print("Color changed")  # TODO change colors
+                print("Color changed")
             case 4:
                 pass
             case _:
                 invalid_input = True
     return
+
+
+if __name__ == "__main__":
+    visualize(f)
