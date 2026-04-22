@@ -165,8 +165,8 @@ def get_config(file: str) -> Configuration:
 
         for (x, y) in [entry, exit]:
             if not (0 <= x < width and 0 <= y < height):
-                raise ValueError(f"ENTRY and EXIT must be coordinates inside"
-                                 f" the grid limits ({width}x{height})")  # actual limits (-1)?
+                raise ValueError(f"ENTRY and EXIT must be within grid bounds: "
+                                 f"x in [0, {width}), y in [0, {height})")
 
         extra = datadict if datadict else None
 
