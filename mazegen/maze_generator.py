@@ -3,9 +3,10 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import overload, Self, Any
 from pydantic import BaseModel, Field, model_validator, ConfigDict
-import sys
+# import sys
 import random
 import copy
+from collections import deque
 
 
 class MazeConfiguration(BaseModel):
@@ -67,16 +68,57 @@ class Maze(BaseModel):
         object.__setattr__(self, "maze_solutions", self.maze_solutioneer())
         return self
 
-    def maze_solutioneer(self, maze_solutions: str | None = None) -> list[str]:  # TODO this method
-        """Find the different paths to complete de maze.
+    # def maze_solutioneer(self, maze_solutions: str | None = None) -> list[str]:  # TODO this method
+    #     """Find the different paths to complete de maze.
+
+    #     Returns:
+    #         list[str]: A list with the solutions of the maze
+
+    #     Raises:
+    #     """
+    #     return []
+
+    def maze_solutioneer(self) -> list[str]:
+        """
+        Finds the shortest path from entry to exit
+        using a Breadth-First Search (BFS).
 
         Returns:
-            list[str]: A list with the solutions of the maze
-
-        Raises:
+            list[str]: A list containing a single string representing the
+                    shortest sequence of movements (N, E, S, W).
         """
-        return []
-    pass
+        grid = [[int(char, 16) for char in line]
+                for line in self.maze_map.strip().split('\n')]
+        height = len(grid)
+        width = len(grid[0])
+        start_y, start_x = self.entry
+        end_y, end_x = self.exit
+
+        directions = [
+            (-1, 0, 1, 'N'),  # Norte: bit 1b
+            (0, 1, 2, 'E'),   # Este: bit 2
+            (1, 0, 4, 'S'),   # Sur: bit 4
+            (0, -1, 8, 'W')   # Oeste: bit 8
+        ]
+        queue: deque[tuple[int, int, str]] = deque([(start_y, start_x, "")])
+        visited: set[tuple[int, int]] = set([(start_y, start_x)])
+
+        while queue:
+            curr_y, curr_x, path = queue.popleft()
+
+            if (curr_y, curr_x) == (end_y, end_x):
+                return [path]
+
+            for dy, dx, wall_bit, char in directions:
+                ny, nx = curr_y + dy, curr_x + dx
+
+                if 0 <= ny < height and 0 <= nx < width:
+                    if not (grid[curr_y][curr_x] & wall_bit):
+                        if (ny, nx) not in visited:
+                            visited.add((ny, nx))
+                            queue.append((ny, nx, path + char))
+
+        return []       # +++raisear error si no hay solución aunque no debería ser posible (?)
 
 
 class MazeGenerator(ABC):
@@ -311,7 +353,8 @@ class GTMazeGenerator(DFSMazeGenerator):
     Growing Tree Generator.
     Inherits movements and utility methods from DFSMazeGenerator.
     """
-    def _run_growing_tree(self, grid: list[list[int]], visited: list[list[bool]]) -> None:
+    def _run_growing_tree(self, grid: list[list[int]],
+                          visited: list[list[bool]]) -> None:
         start_x, start_y = self.config.ENTRY
         active_cells = [(start_y, start_x)]
         visited[start_y][start_x] = True
@@ -329,7 +372,8 @@ class GTMazeGenerator(DFSMazeGenerator):
             neighbours = []
             for direction, (dy, dx, c_w, n_w) in self.MOVEMENTS.items():
                 ny, nx = curr_y + dy, curr_x + dx
-                if 0 <= ny < self.config.HEIGHT and 0 <= nx < self.config.WIDTH:
+                if (0 <= ny < self.config.HEIGHT
+                   and 0 <= nx < self.config.WIDTH):
                     if not visited[ny][nx]:
                         neighbours.append((ny, nx, c_w, n_w))
 
