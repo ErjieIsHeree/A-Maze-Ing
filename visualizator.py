@@ -1,8 +1,10 @@
 from collections.abc import Callable
-from pydantic import BaseModel, Field
 from enum import Enum
+import random
 
 from mazegen import Maze
+
+from pydantic import BaseModel, Field
 
 
 class Wall(Enum):
@@ -83,7 +85,8 @@ def create_maze_row(
             map_visual.path_c if i in path else
             " "
         )
-        cw = f" {marker} " + map_visual.h_wall
+        cw = (f" {marker} " + map_visual.h_wall if block != "F" else
+              "###" + map_visual.h_wall)
         ow = f" {marker}  "
         wall += cw if is_closed_wall(block, Wall.EAST) else ow
     wall += "\n"
@@ -119,8 +122,7 @@ def get_path_coordinates(
         entry (tuple[int, int]): The entry coordinate
 
     Returns:
-        set[tuple[int, int]]: A set of the coordinates that is used by the path
-            to exit
+        set[tuple[int, int]]: A set of the coordinates to the exit
     """
     position: tuple[int, int] = entry
     path_coordinates: set[tuple[int, int]] = {(entry)}
@@ -135,10 +137,16 @@ def get_path_coordinates(
             )
             position = position[0] + step.value[0], position[1] + step.value[1]
             path_coordinates.add(position)
+        position = entry
     return path_coordinates
 
 
-def write_map(maze: Maze, with_solution: bool, map_visual: MapVisuals) -> str:
+def write_map(
+    maze: Maze,
+    map_visual: MapVisuals,
+    with_solution: bool = False,
+    with_solutions: bool = False
+) -> str:
     """Returns a visual representation with ASCII chars of the Maze given
 
     Args:
@@ -148,19 +156,23 @@ def write_map(maze: Maze, with_solution: bool, map_visual: MapVisuals) -> str:
     Returns:
         str: A visual representation of the maze in ASCII
     """
+
     map: str = ""
-    path = (
-        get_path_coordinates(maze.maze_solutions, maze.entry)
-        if with_solution else
-        {}
+    paths_coordinates: set[tuple[int, int]] = (
+        get_path_coordinates(
+            (maze.maze_solutions if with_solutions else
+             [min(maze.maze_solutions, key=len)]),
+            maze.entry
+        )
+        if with_solution or with_solutions else
+        set()
     )
+    print(paths_coordinates)
+
     for i, partial_map in enumerate(maze.maze_map.split("\n")):
         if partial_map:
-            partial_path = (
-                [coord[0] for coord in path if coord[1] == i]
-                if with_solution else
-                []
-            )
+            partial_path = [coord[0] for coord in paths_coordinates
+                            if coord[1] == i]
             entry = maze.entry[0] if maze.entry[1] == i else None
             exit = maze.exit[0] if maze.exit[1] == i else None
 
@@ -170,13 +182,13 @@ def write_map(maze: Maze, with_solution: bool, map_visual: MapVisuals) -> str:
                 map_visual,
                 entry,
                 exit,
-                True if i == 0 else False
+                i == 0
             )
     return map
 
 
 def visualize(generate_maze: Callable[[], Maze]) -> None:
-    """Use mlx to visualize a Maze object
+    """Show the maze returned by the function with ascii characters.
 
     Args:
         generate_maze (Callable): A function that generates Maze objects
@@ -185,19 +197,125 @@ def visualize(generate_maze: Callable[[], Maze]) -> None:
         None
     """
 
-    opt: str = "1-3"
+    opt: str = "1-5"
     selection: int = 0
-    maze: Maze
+    maze: Maze = generate_maze()
     with_solution: bool = False
+    with_solutions: bool = False
     invalid_input: bool = False
+    maze_map = write_map(maze, MapVisuals())
+    color: str = ""
+
+    def get_color() -> str:
+        return random.choice([
+            "\033[30m",
+            "\033[31m",
+            "\033[32m",
+            "\033[33m",
+            "\033[34m",
+            "\033[35m",
+            "\033[36m",
+            "\033[37m",
+            "\033[90m",
+            "\033[91m",
+            "\033[92m",
+            "\033[93m",
+            "\033[94m",
+            "\033[95m",
+            "\033[96m",
+            "\033[97m",
+            "\033[1;30m",
+            "\033[1;31m",
+            "\033[1;32m",
+            "\033[1;33m",
+            "\033[1;34m",
+            "\033[1;35m",
+            "\033[1;36m",
+            "\033[1;37m",
+            "\033[38;5;1m",
+            "\033[38;5;2m",
+            "\033[38;5;3m",
+            "\033[38;5;4m",
+            "\033[38;5;5m",
+            "\033[38;5;6m",
+            "\033[38;5;7m",
+            "\033[38;5;9m",
+            "\033[38;5;10m",
+            "\033[38;5;11m",
+            "\033[38;5;12m",
+            "\033[38;5;13m",
+            "\033[38;5;14m",
+            "\033[38;5;15m",
+            "\033[38;5;21m",
+            "\033[38;5;27m",
+            "\033[38;5;33m",
+            "\033[38;5;39m",
+            "\033[38;5;45m",
+            "\033[38;5;51m",
+            "\033[38;5;46m",
+            "\033[38;5;47m",
+            "\033[38;5;48m",
+            "\033[38;5;82m",
+            "\033[38;5;118m",
+            "\033[38;5;154m",
+            "\033[38;5;190m",
+            "\033[38;5;226m",
+            "\033[38;5;220m",
+            "\033[38;5;214m",
+            "\033[38;5;208m",
+            "\033[38;5;202m",
+            "\033[38;5;196m",
+            "\033[38;5;197m",
+            "\033[38;5;198m",
+            "\033[38;5;199m",
+            "\033[38;5;200m",
+            "\033[38;5;201m",
+            "\033[38;5;165m",
+            "\033[38;5;129m",
+            "\033[38;5;93m",
+            "\033[38;5;57m",
+            "\033[38;5;21m",
+            "\033[38;5;20m",
+            "\033[38;5;19m",
+            "\033[38;5;18m",
+            "\033[38;5;17m",
+            "\033[38;5;16m",
+            "\033[38;5;231m",
+            "\033[38;5;230m",
+            "\033[38;5;229m",
+            "\033[38;5;228m",
+            "\033[38;5;227m",
+            "\033[38;5;123m",
+            "\033[38;5;122m",
+            "\033[38;5;121m",
+            "\033[38;5;120m",
+            "\033[38;5;119m",
+            "\033[38;5;87m",
+            "\033[38;5;86m",
+            "\033[38;5;85m",
+            "\033[38;5;84m",
+            "\033[38;5;83m",
+            "\033[38;5;75m",
+            "\033[38;5;74m",
+            "\033[38;5;73m",
+            "\033[38;5;72m",
+            "\033[38;5;71m",
+            "\033[38;5;105m",
+            "\033[38;5;106m",
+            "\033[38;5;107m",
+            "\033[38;5;108m",
+            "\033[38;5;109m",
+            "\033[38;5;177m",
+            "\033[38;5;178m",
+            "\033[38;5;179m",
+            "\033[38;5;180m"
+        ])
 
     print("\033[s")
-    maze = generate_maze()
-    while selection != 4:
+    while selection != 5:
         print("\033[u\033[J", end="")
-        maze_map = write_map(maze, with_solution, MapVisuals())
         print(
-            maze_map if not invalid_input else
+            f"{color}{maze_map}\033[0m" if not invalid_input else
             f"Please enter a valid number ({opt})\n"
         )
         invalid_input = False
@@ -206,19 +324,44 @@ def visualize(generate_maze: Callable[[], Maze]) -> None:
 1 - Re-generate the maze
 2 - Show/Hide the shortest path to the exit
 3 - Change wall colours
-4 - Exit\n"""))
+4 - Show/Hide every path to the exit
+5 - Exit\n"""))
         except ValueError:
             invalid_input = True
         match selection:
             case 1:
                 maze = generate_maze()
+                maze_map = write_map(maze, MapVisuals())
                 with_solution = False
             case 2:
+                with_solutions = False
                 with_solution = not with_solution
+                maze_map = write_map(maze, MapVisuals(), with_solution)
             case 3:
-                print("Color changed")  # TODO change colors
+                color = get_color()
             case 4:
+                with_solution = False
+                with_solutions = not with_solutions
+                maze_map = write_map(
+                    maze,
+                    MapVisuals(),
+                    with_solution,
+                    with_solutions
+                )
+            case 5:
                 pass
             case _:
                 invalid_input = True
     return
+
+
+if __name__ == "__main__":
+    def f() -> Maze:
+        return Maze(
+            maze_map="9515391539551795151151153\nEBABAE812853C1412BA812812\n96A8416A84545412AC4282C2A\nC3A83816A9393584453A82D02\n96842A852AC07AAD13A8283C2\nC1296C43AAB83AA92AA8686BA\n92E853968428444682AC12902\nAC3814452FA83FFF82C52C42A\n85684117AFC6857FAC1383D06\nC53AD043AFFFAFFF856AA8143\n91441294297FAFD501142C6BA\nAA912AC3843FAFFF82856D52A\n842A8692A92B8517C4451552A\n816AC384468285293917A9542\nC416928513C443A828456C3BA\n91416AA92C393A82801553AAA\nA81292AA814682C6A8693C6AA\nA8442C6C2C1168552C16A9542\n86956951692C1455416928552\nC545545456C54555545444556",
+            entry=(1, 1),
+            exit=(19, 14),
+            maze_solutions=["SWSESWSESWSSSEESEEENEESESEESSSEEESSSEEENNENEE", "EEEEEEEEEEE"]
+        )
+
+    visualize(f)
