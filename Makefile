@@ -5,10 +5,18 @@ REQUIREMENTS := requirements.txt
 MODULE := mazegen-1.0-py3-none-any.whl
 
 
-all: run clean
+all:
+	if [! -d .venv]; then
+		create-venv
+	init-venv
+	install
+	run
+	clean
+
+create-venv:
+	python3 -m venv .venv
 
 init-venv:
-	python3 -m venv .venv
 	source .venv/bin/activate
 
 install: $(REQUIREMENTS) $(MODULE)
