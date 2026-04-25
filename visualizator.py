@@ -44,8 +44,8 @@ def is_closed_wall(map_block: str, wall_side: Wall) -> bool:
 
 class MapVisuals(BaseModel):
     corner: str = Field(min_length=1, max_length=1, default="+")
-    v_wall: str = Field(min_length=3, max_length=3, default="---")
-    h_wall: str = Field(min_length=1, max_length=1, default="|")
+    h_wall: str = Field(min_length=3, max_length=3, default="---")
+    v_wall: str = Field(min_length=1, max_length=1, default="|")
 
     entry_c: str = Field(min_length=1, max_length=1, default="X")
     exit_c: str = Field(min_length=1, max_length=1, default="O")
@@ -72,12 +72,12 @@ def create_maze_row(
 
     wall = (
         ("".join(
-            f"{map_visual.corner}{map_visual.v_wall}"
+            f"{map_visual.corner}{map_visual.h_wall}"
             for _ in partial_map
         ) + "+\n") if is_first else ""
     )
 
-    wall += map_visual.h_wall
+    wall += map_visual.v_wall
     for i, block in enumerate(partial_map):
         marker = (
             map_visual.entry_c if i == entry else
@@ -85,8 +85,8 @@ def create_maze_row(
             map_visual.path_c if i in path else
             " "
         )
-        cw = (f" {marker} " + map_visual.h_wall if block != "F" else
-              "###" + map_visual.h_wall)
+        cw = (f" {marker} " + map_visual.v_wall if block != "F" else
+              "###" + map_visual.v_wall)
         ow = f" {marker}  "
         wall += cw if is_closed_wall(block, Wall.EAST) else ow
     wall += "\n"
@@ -94,7 +94,7 @@ def create_maze_row(
     wall += map_visual.corner
     for block in partial_map:
         wall += (
-            map_visual.v_wall + map_visual.corner
+            map_visual.h_wall + map_visual.corner
             if is_closed_wall(block, Wall.SOUTH) else
             "   " + map_visual.corner
         )
@@ -167,7 +167,6 @@ def write_map(
         if with_solution or with_solutions else
         set()
     )
-    print(paths_coordinates)
 
     for i, partial_map in enumerate(maze.maze_map.split("\n")):
         if partial_map:
@@ -197,14 +196,17 @@ def visualize(generate_maze: Callable[[], Maze]) -> None:
         None
     """
 
-    opt: str = "1-5"
+    opt: str = "1-6"
     selection: int = 0
     maze: Maze = generate_maze()
     with_solution: bool = False
     with_solutions: bool = False
     invalid_input: bool = False
-    maze_map = write_map(maze, MapVisuals())
+    maze_map_visual: MapVisuals = MapVisuals()
+    maze_map = write_map(maze, maze_map_visual)
     color: str = ""
+    invalid_map_visual: bool = False
+    visual_error: str = ""
 
     def get_color() -> str:
         return random.choice([
@@ -312,31 +314,35 @@ def visualize(generate_maze: Callable[[], Maze]) -> None:
         ])
 
     print("\033[s")
-    while selection != 5:
+    while selection != 6:
         print("\033[u\033[J", end="")
+        print(maze.maze_solutions)
         print(
-            f"{color}{maze_map}\033[0m" if not invalid_input else
-            f"Please enter a valid number ({opt})\n"
+            f"Please enter a valid number ({opt})\n" if invalid_input else
+            f"Invalid visual input: {visual_error}" if invalid_map_visual else
+            f"{color}{maze_map}\033[0m"
         )
         invalid_input = False
+        invalid_map_visual = False
         try:
             selection = int(input(f"""Please insert a number from {opt}:
 1 - Re-generate the maze
 2 - Show/Hide the shortest path to the exit
 3 - Change wall colours
 4 - Show/Hide every path to the exit
-5 - Exit\n"""))
+5 - Change Maze visuals
+6 - Exit\n"""))
         except ValueError:
             invalid_input = True
         match selection:
             case 1:
                 maze = generate_maze()
-                maze_map = write_map(maze, MapVisuals())
+                maze_map = write_map(maze, maze_map_visual)
                 with_solution = False
             case 2:
                 with_solutions = False
                 with_solution = not with_solution
-                maze_map = write_map(maze, MapVisuals(), with_solution)
+                maze_map = write_map(maze, maze_map_visual, with_solution)
             case 3:
                 color = get_color()
             case 4:
@@ -344,11 +350,27 @@ def visualize(generate_maze: Callable[[], Maze]) -> None:
                 with_solutions = not with_solutions
                 maze_map = write_map(
                     maze,
-                    MapVisuals(),
+                    maze_map_visual,
                     with_solution,
                     with_solutions
                 )
             case 5:
+                print("\033[u\033[J", end="")
+                try:
+                    maze_map_visual = MapVisuals(
+                        corner=input("Entry corner char (only 1): "),
+                        v_wall=input("Entry vertical wall char (only 1): "),
+                        h_wall=input("Entry horizontal wall char (only 3): "),
+                        entry_c=input("Entry entry char (only 1): "),
+                        exit_c=input("Entry exit char (only 1): "),
+                        path_c=input("Entry path char (only 1): ")
+                    )
+                except Exception as err:
+                    invalid_map_visual = True
+                    visual_error = err.__str__()
+                else:
+                    maze_map = write_map(maze, maze_map_visual)
+            case 6:
                 pass
             case _:
                 invalid_input = True
