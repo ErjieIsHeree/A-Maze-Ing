@@ -328,9 +328,10 @@ class Algorithms(Enum):
 
 class MazeGeneratorFactory(BaseModel):
     """Instance used for creating Maze Generators"""
+
     @overload
+    @staticmethod
     def create_generator(
-        self,
         CONFIG: MazeConfiguration = Field()
     ) -> MazeGenerator:
         """Creates the appropiate maze generator
@@ -353,8 +354,8 @@ class MazeGeneratorFactory(BaseModel):
         ...
 
     @overload
+    @staticmethod
     def create_generator(
-        self,
         WIDTH: int = Field(),
         HEIGHT: int = Field(),
         ENTRY: tuple[int, int] = Field(),
@@ -389,8 +390,10 @@ class MazeGeneratorFactory(BaseModel):
         """
         ...
 
+    @staticmethod
     def create_generator(
-        self, *args: Any, **kwargs: Any
+        *args: Any,
+        **kwargs: Any
     ) -> MazeGenerator:
         """Creates the appropiate maze generator"""
         if len(args) == 1:
