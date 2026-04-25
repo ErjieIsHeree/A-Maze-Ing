@@ -332,12 +332,23 @@ class MazeGeneratorFactory(BaseModel):
     def create_generator(
         self,
         CONFIG: MazeConfiguration = Field()
-    ) -> tuple[MazeGenerator, int]:
+    ) -> MazeGenerator:
         """Creates the appropiate maze generator
+
+        If any configuration value is impossible, an exception will be raised.
+        Of course, if a Algorithm set doesn't exist, an exception will be
+        raised.
+
+        #  TODO devir a zeta que complete esto de abajo
+        Algorithms (Note that that algorithm string is case insensitive):
+            - DFS: The default algorithm...
 
         Args:
             config (MazeConfiguration): The MazeConfiguration data-class used
                 to create the appropiate maze
+
+        Returns:
+            MazeGenerator: The MazeGenerator object.
         """
         ...
 
@@ -352,8 +363,16 @@ class MazeGeneratorFactory(BaseModel):
         SEED: float | None = Field(default=None),
         ALGORITHM: str | None = Field(max_length=255, default=None),
         EXTRA: dict[str, str] | None = Field(default=None)
-    ) -> tuple[MazeGenerator, int]:
+    ) -> MazeGenerator:
         """Creates the appropiate maze generator
+
+        If any configuration value is impossible, an exception will be raised.
+        Of course, if a Algorithm set doesn't exist, an exception will be
+        raised.
+
+        #  TODO devir a zeta que complete esto de abajo
+        Algorithms (Note that that algorithm string is case insensitive):
+            - DFS: The default algorithm...
 
         Args:
             WIDTH (int): The width of the maze
@@ -366,22 +385,22 @@ class MazeGeneratorFactory(BaseModel):
             EXTRA (dict[str, str] | None): Extra data for others special mazes
 
         Returns:
-            tuple[MazeGenerator, int]: The maze generator and a number
-                according to: 0 if the selected algorithm wasn't found or 1 if
-                it was found.
+            MazeGenerator: The MazeGenerator object.
         """
         ...
 
     def create_generator(
         self, *args: Any, **kwargs: Any
-    ) -> tuple[MazeGenerator, int]:
+    ) -> MazeGenerator:
         """Creates the appropiate maze generator"""
         if len(args) == 1:
             config = args[0]
         else:
             config = MazeConfiguration(**kwargs)
 
-        for algorithm in Algorithms:
-            if algorithm.name == config.ALGORITHM:
-                return (algorithm.value(config), 1)
-        return (Algorithms.DEFAULT.value(config), 0)
+        if config.ALGORITHM:
+            for algorithm in Algorithms:
+                if algorithm.name == config.ALGORITHM.lower():
+                    return algorithm.value(config)
+            raise ValueError("This algorithm doesn't exist")
+        return DFSMazeGenerator(config)
