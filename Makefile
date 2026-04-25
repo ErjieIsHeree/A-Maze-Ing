@@ -4,10 +4,8 @@ SRC := configuration.py visualizator.py config.txt
 REQUIREMENTS := requirements.txt
 MODULE := mazegen-1.0-py3-none-any.whl
 
-
 all:
-	if [! -d .venv]; then
-		create-venv
+	if [ ! -d .venv ]; then create-venv; fi
 	init-venv
 	install
 	run
