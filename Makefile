@@ -5,7 +5,7 @@ REQUIREMENTS := requirements.txt
 MODULE := mazegen-1.0-py3-none-any.whl
 
 
-all: lint install run clean
+all: run clean
 
 init-venv:
 	python3 -m venv .venv
