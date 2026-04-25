@@ -69,6 +69,6 @@ if __name__ == "__main__" and len(sys.argv) == 2:
     config = get_config(sys.argv[1])
     maze_generator = MazeGeneratorFactory().create_generator(
         **config.model_dump())
-    visualize(create_maze_pipeline(maze_generator[0], config.OUTPUT_FILE))
+    visualize(create_maze_pipeline(maze_generator, config.OUTPUT_FILE))
 elif __name__ == "__main__":
     print("Please enter only the file name.")
