@@ -65,10 +65,19 @@ def create_maze_pipeline(
     return _
 
 
-if __name__ == "__main__" and len(sys.argv) == 2:
-    config = get_config(sys.argv[1])
+if (__name__ == "__main__" and
+        len(sys.argv) == 2 or (3 and "--v2" in sys.argv[1:])):
+    if len(sys.argv) == 2:
+        config = get_config(sys.argv[1])
+    else:
+        config = get_config(
+            sys.argv[2] if sys.argv[1] == "--v2" else sys.argv[1], True)
+        pass
+
     maze_generator = MazeGeneratorFactory().create_generator(
         **config.model_dump())
     visualize(create_maze_pipeline(maze_generator, config.OUTPUT_FILE))
 elif __name__ == "__main__":
-    print("Please enter only the file name.")
+    print("""Only 2 arguments are accepted:
+-The flag: '--v2'
+-A configuration file name""")

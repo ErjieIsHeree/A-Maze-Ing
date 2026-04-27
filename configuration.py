@@ -98,8 +98,9 @@ def get_val(key: str, data: Dict[str, str], defs: Dict[str, str]) -> str:
     return val
 
 
-def get_config(file: str) -> Configuration:
-    """Reads and validates a configuration file to create a Configuration object.
+def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implement v2 for default configs
+    """Reads and validates a configuration file to create a Configuration
+    object.
 
     Args:
         file (str): Path to the config.txt file.
@@ -119,7 +120,7 @@ def get_config(file: str) -> Configuration:
         "ENTRY": "0,0",
         "EXIT": "19,14",
         "OUTPUT_FILE": "maze.txt",
-        "PERFECT": "True",  # TODO hablar con zeta que cuando falten config basicos debe lanzar exception. sorry zeta
+        "PERFECT": "True",
         "ALGORITHM": "dfs",   # cuidado caso perfect definido false pero algoritmo no definido
         "SEED": "None"
     }
