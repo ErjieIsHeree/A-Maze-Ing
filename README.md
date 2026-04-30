@@ -109,7 +109,7 @@ if __name__ == "__main__":
 | Member           | Rol                 |
 | ---------------- | ------------------  |
 | exia (Erjie Xia) | Project manager     |
-| Zeta (Luzia)     | Algorithm developer |  # TODO ask if zeta wanna add her last name
+| Zeta (Luzia)     | Algorithm developer |  # TODO ask if zeta wanna add her last name or change roles
 
 - **Anticipated planning and evolution**
 
@@ -125,8 +125,13 @@ functional program (If everything was planned and tested correctly).
 
 - **Pros and cons through the development**
 
-*Exia point of view:*  # TODO lazy now, gl future erjie!
-The very first pro was the team. It was very dynamic and helpfull. Each did
+*Exia point of view:*
+This project organization was exciting, I could release some of the power I got
+through the years in programming. Of course, crystal clear, I'm not the best at
+it, YET!
+
+My partner did her best at doing her part of the work while adapting to my
+structure. Even though I haven't explained it to her!
 
 *Zeta point of view:*  #  TODO for zeta
 
