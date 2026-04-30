@@ -7,7 +7,7 @@ from visualizator import visualize
 from configuration import get_config
 
 
-def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
+def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:  # TODO Test this
     """Write maze data to a file.
 
     Writes the maze map, entry and exit coordinates, and solution
@@ -40,7 +40,7 @@ def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
 
 def create_maze_pipeline(
     maze_generator: MazeGenerator, output_file: str
-) -> Callable[[], Maze]:
+) -> Callable[[], Maze]:  # TODO Test this
     """Returns a function to export and get a Maze data-class
 
     The Maze data-class contains all the information for a user about a maze

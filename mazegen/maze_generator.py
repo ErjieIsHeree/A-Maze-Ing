@@ -1,4 +1,4 @@
-
+  # TODO Test this and change Self to the way of version py 3.10
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import overload, Self, Any
