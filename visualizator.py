@@ -43,6 +43,18 @@ def is_closed_wall(map_block: str, wall_side: Wall) -> bool:
 
 
 class MapVisuals(BaseModel):
+    """This class is used as a data-class containing information of the way
+    a map is visualized
+
+    Args:
+        corner (str): The char used for corners
+        h_wall (str): The char used for horizontal walls
+        v_wall (str): The char used for vertical walls
+        entry_c (str): The char used for entry point
+        exit_c (str): The char used for exit point
+        path_c (str): The char used for solution paths
+        corner (str): The char used for corners
+    """
     corner: str = Field(min_length=1, max_length=1, default="+")
     h_wall: str = Field(min_length=3, max_length=3, default="---")
     v_wall: str = Field(min_length=1, max_length=1, default="|")
@@ -59,22 +71,30 @@ def create_maze_row(
     map_visual: MapVisuals,
     entry: int | None = None,
     exit: int | None = None,
-    is_first: bool = False
+    with_roof: bool = False
 ) -> str:
     """Returns a string of the horizontal and south walls of the partial_map
 
     Args:
         partial_map (str): the string representing a row of the maze
-        path (list[int]): the columns that contains part of a path to the exit
-        entry (int | None): the entry coordinate if is in the actual row
-        exit (int | None): the exit coordinate if is in the actual row
+        path (list[int]): the columns that are part of the rout to the exit of
+            the maze
+        entry (int | None): the column entry point of the maze if it is in the
+            actual row
+        exit (int | None): the column exit point of the maze if it is in the
+            actual row
+        with_roof (bool): if want to write the NORTH wall of the actual row,
+            default value is False
+
+    Returns:
+        A string "picture" of the actual row
     """
 
     wall = (
         ("".join(
             f"{map_visual.corner}{map_visual.h_wall}"
             for _ in partial_map
-        ) + "+\n") if is_first else ""
+        ) + "+\n") if with_roof else ""
     )
 
     wall += map_visual.v_wall
@@ -143,7 +163,7 @@ def get_path_coordinates(
 
 def write_map(
     maze: Maze,
-    map_visual: MapVisuals,
+    map_visual: MapVisuals = MapVisuals(),
     with_solution: bool = False,
     with_solutions: bool = False
 ) -> str:
@@ -151,10 +171,17 @@ def write_map(
 
     Args:
         maze (Maze): The maze object where info is taken for the creation
-        with_solution (bool): If wants to get the maze with the solution
+        map_visual (MapVisuals): The data-class used to write the maze with its
+            characters. By default, the default characters of the MapVisuals
+            will be used
+        with_solution (bool): If wants to get the maze with the shortest
+            solution, by default this is False
+        with_solutions (bool): If wants to get the maze with all solutions,
+            note that if this is on, with_solution parameter will be skipped.
+            By default this is False
 
     Returns:
-        str: A visual representation of the maze in ASCII
+        str: A visual representation of the maze in ASCII characters
     """
 
     map: str = ""
@@ -187,13 +214,20 @@ def write_map(
 
 
 def visualize(generate_maze: Callable[[], Maze]) -> None:
-    """Show the maze returned by the function with ascii characters.
+    """Starts an interactive menu to play with mazes.
+
+    It will offer differents options:
+        1 - Re-generate the maze
+        2 - Show/Hide the shortest path to the exit
+        3 - Change wall colours
+        4 - Show/Hide every path to the exit
+        5 - Change Maze visuals
+        6 - Exit
+
+    Each one doing its corresponding action.
 
     Args:
         generate_maze (Callable): A function that generates Maze objects
-
-    Returns:
-        None
     """
 
     opt: str = "1-6"
@@ -379,6 +413,10 @@ def visualize(generate_maze: Callable[[], Maze]) -> None:
 
 if __name__ == "__main__":
     def f() -> Maze:
+        """A function used for quick testing the visualize function
+
+        Returns:
+            Maze: A maze object."""
         return Maze(
             maze_map="""9515391539551795151151153\nEBABAE812853C1412BA812812\n9
 6A8416A84545412AC4282C2A\nC3A83816A9393584453A82D02\n96842A852AC07AAD13A8283C2
@@ -393,3 +431,4 @@ C6BA\nAA912AC3843FAFFF82856D52A\n842A8692A92B8517C4451552A\n816AC38446828529391
         )
 
     visualize(f)
+    pass
