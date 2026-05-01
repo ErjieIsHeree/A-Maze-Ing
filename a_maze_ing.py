@@ -7,7 +7,7 @@ from visualizator import visualize
 from configuration import get_config
 
 
-def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:  # TODO Test this
+def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
     """Write maze data to a file.
 
     Writes the maze map, entry and exit coordinates, and solution
@@ -21,9 +21,8 @@ def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:  # T
     try:
         with open(file, "w") as f:
             f.write(maze_info.maze_map)
-            f.write("\n")
-            f.write(f"{maze_info.entry[0]}, {maze_info.entry[1]}")
-            f.write(f"{maze_info.exit[0]}, {maze_info.exit[1]}")
+            f.write(f"\n\n{maze_info.entry[0]},{maze_info.entry[1]}")
+            f.write(f"\n{maze_info.exit[0]},{maze_info.exit[1]}\n")
             if is_pro:
                 text = "\n".join(
                     f"Solution {i}: {solution}"
