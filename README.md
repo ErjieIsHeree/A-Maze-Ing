@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by exia, (ZETA).*
+*This project has been created as part of the 42 curriculum by exia, lduran-f.*
 
 # A-MAZE-ING
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 | Member           | Rol                 |
 | ---------------- | ------------------  |
 | exia (Erjie Xia) | Project manager     |
-| Zeta (Luzia)     | Algorithm developer |  # TODO ask if zeta wanna add her last name or change roles
+| lduran-f (Luzia) | Algorithm developer |  # TODO ask if zeta wanna add her last name or change roles
 
 - **Anticipated planning and evolution**
 
