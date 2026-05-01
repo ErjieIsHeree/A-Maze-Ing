@@ -137,7 +137,7 @@ def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implem
                     key = key.strip()
                     if key:
                         datadict[key] = value.strip()
-    except FileNotFoundError:
+    except FileNotFoundError:  # !! many more errors could happen at this point like, permission error, UnexpectedIOErrors...
         print(f"Error: The file {file} was not found.")
         sys.exit(1)
 
@@ -148,7 +148,7 @@ def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implem
             print(f"Error: Mandatory key {key} is missing in {file}")
             sys.exit(1)
 
-    try:
+    try:  #  TODO change this part so that defaults gets to be an optional version
         width = int(get_val("WIDTH", datadict, defaults))
         height = int(get_val("HEIGHT", datadict, defaults))
         entry = parse_coords(get_val("ENTRY", datadict, defaults))
@@ -187,3 +187,7 @@ def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implem
     except ValueError as e:
         print(f"Error found in configuration file {file}: {e}")
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    print(get_config(sys.argv[0]))
