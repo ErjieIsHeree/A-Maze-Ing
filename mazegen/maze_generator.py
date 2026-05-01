@@ -253,18 +253,6 @@ class MazeGenerator(ABC):
                 extra_corrs += 1
 
 
-class ExampleMazeGenerator(MazeGenerator):  # !! BORRAR ANTES DE ENTREGAR
-    def __init__(self, config: MazeConfiguration) -> None:
-        super().__init__(config)
-        return
-
-    def generate(self) -> Maze:
-        return Maze(maze_map="Hola", entry=(1, 1), exit=(16, 2))
-
-    def validate_config(self) -> None: ...
-    pass
-
-
 class DFSMazeGenerator(MazeGenerator):
     """
     Maze generator that implements the Depth-First Search (DFS) algorithm,
@@ -418,8 +406,6 @@ class GTMazeGenerator(DFSMazeGenerator):
 
 class Algorithms(Enum):
     """A enumerator class for enumarating all possible Algorithms"""
-    DEFAULT = ExampleMazeGenerator
-    EXAMPLE = ExampleMazeGenerator  # !! BORRAR ANTES DE ENTREGAR
     DFS = DFSMazeGenerator
     GT = GTMazeGenerator
     pass
