@@ -39,7 +39,7 @@ def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
 
 def create_maze_pipeline(
     maze_generator: MazeGenerator, output_file: str
-) -> Callable[[], Maze]:  # TODO Test this
+) -> Callable[[], Maze]:
     """Returns a function to export and get a Maze data-class
 
     The Maze data-class contains all the information for a user about a maze
