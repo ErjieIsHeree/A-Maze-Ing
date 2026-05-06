@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import overload, Self, Any
 from pydantic import BaseModel, Field, model_validator, ConfigDict
-# import sys
+import sys
 import random
 import copy
 from collections import deque
@@ -80,6 +80,51 @@ class Maze(BaseModel):
 
     def maze_solutioneer(self) -> list[str]:
         """
+        Finds ALL possible paths from entry to exit without
+        revisiting the same cell in a single path.
+        Returns:
+            list[str]: A list containing all the solution strings representing
+            the sequence of movements (N, E, S, W).
+        """
+        grid = [[int(char, 16) for char in line]
+                for line in self.maze_map.strip().split('\n')]
+        height = len(grid)
+        width = len(grid[0])
+        start_y, start_x = self.entry
+        end_y, end_x = self.exit
+
+        directions = [
+            (-1, 0, 1, 'N'),  # Norte: bit 1
+            (0, 1, 2, 'E'),   # Este: bit 2
+            (1, 0, 4, 'S'),   # Sur: bit 4
+            (0, -1, 8, 'W')   # Oeste: bit 8
+        ]
+
+        all_paths = []
+        current_path_visited = set()
+
+        def f_recursive(y: int, x: int, path_str: str):
+
+            if (y, x) == (end_y, end_x):
+                all_paths.append(path_str)
+                return
+
+            current_path_visited.add((y, x))
+
+            for dy, dx, wall_bit, char in directions:
+                ny, nx = y + dy, x + dx
+                if 0 <= ny < height and 0 <= nx < width:
+                    if (not (grid[y][x] & wall_bit) and
+                       (ny, nx) not in current_path_visited):
+                        f_recursive(ny, nx, path_str + char)
+
+            current_path_visited.remove((y, x))
+
+        f_recursive(start_y, start_x, "")
+        return all_paths
+
+    def maze_solutioneer_shortest(self) -> list[str]:
+        """
         Finds the shortest path from entry to exit
         using a Breadth-First Search (BFS).
 
@@ -95,7 +140,7 @@ class Maze(BaseModel):
         end_y, end_x = self.exit
 
         directions = [
-            (-1, 0, 1, 'N'),  # Norte: bit 1b
+            (-1, 0, 1, 'N'),  # Norte: bit 1
             (0, 1, 2, 'E'),   # Este: bit 2
             (1, 0, 4, 'S'),   # Sur: bit 4
             (0, -1, 8, 'W')   # Oeste: bit 8
@@ -157,10 +202,18 @@ class MazeGenerator(ABC):
         pattern. According to the subject, if the maze is too small, the
         pattern is omitted and an error message is displayed, but the
         generation continues.
+
+        Raises ERROR if ENTRY or EXIT cells are part of the 42 pattern.
         """
         if self.config.WIDTH < 9 or self.config.HEIGHT < 7:
             print("Error: Maze too small for '42' pattern. Omitting pattern.")
             self.skip_pattern = True
+        if self.skip_pattern is False:
+            if (self.config.ENTRY in self._get_42_coords
+               or self.config.EXIT in self._get_42_coords):
+                print("[ERROR]: Entry/Exit cells can't be "
+                      "inside the 42 pattern.")
+                sys.exit(1)
 
     def _get_42_coords(self) -> list[tuple[int, int]]:
         """
