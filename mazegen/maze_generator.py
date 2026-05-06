@@ -1,7 +1,7 @@
   # TODO Test this and change Self to the way of version py 3.10
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import overload, Self, Any
+from typing import overload, Any
 from pydantic import BaseModel, Field, model_validator, ConfigDict
 import sys
 import random
@@ -24,14 +24,14 @@ class MazeConfiguration(BaseModel):
     """
     model_config = ConfigDict(frozen=True)
 
-    WIDTH: int = Field()
-    HEIGHT: int = Field()
-    ENTRY: tuple[int, int] = Field()
-    EXIT: tuple[int, int] = Field()
-    PERFECT: bool = Field(default=False)
-    SEED: float | None = Field(default=None)
+    WIDTH: int
+    HEIGHT: int
+    ENTRY: tuple[int, int]
+    EXIT: tuple[int, int]
+    PERFECT: bool = False
+    SEED: float | None = None
     ALGORITHM: str | None = Field(max_length=255, default=None)
-    EXTRA: dict[str, str] | None = Field(default=None)
+    EXTRA: dict[str, str] | None = None
     pass
 
 
@@ -50,13 +50,13 @@ class Maze(BaseModel):
     """
     model_config = ConfigDict(frozen=True)
 
-    maze_map: str = Field()
-    entry: tuple[int, int] = Field()
-    exit: tuple[int, int] = Field()
+    maze_map: str
+    entry: tuple[int, int]
+    exit: tuple[int, int]
     maze_solutions: list[str] = Field(init=False)
 
     @model_validator(mode="after")
-    def set_solutions(self) -> Self:
+    def set_solutions(self) -> "Maze":
         """Set the maze solution.
 
         Args:
@@ -67,16 +67,6 @@ class Maze(BaseModel):
         """
         object.__setattr__(self, "maze_solutions", self.maze_solutioneer())
         return self
-
-    # def maze_solutioneer(self, maze_solutions: str | None = None) -> list[str]:  # TODO this method
-    #     """Find the different paths to complete de maze.
-
-    #     Returns:
-    #         list[str]: A list with the solutions of the maze
-
-    #     Raises:
-    #     """
-    #     return []
 
     def maze_solutioneer(self) -> list[str]:
         """
@@ -162,8 +152,7 @@ class Maze(BaseModel):
                         if (ny, nx) not in visited:
                             visited.add((ny, nx))
                             queue.append((ny, nx, path + char))
-
-        return []       # +++raisear error si no hay solución aunque no debería ser posible (?)
+        return []
 
 
 class MazeGenerator(ABC):
@@ -180,12 +169,6 @@ class MazeGenerator(ABC):
         self.rng = random.Random(self.config.SEED)
         self.skip_pattern = False
         self.validate_config()
-        # try:
-        #     self.validate_config()
-        # except Exception as err:
-        #     print(f"[ERROR]: {err}")
-        #     sys.exit(1)
-        # return
 
     @abstractmethod
     def generate(self) -> Maze:
@@ -209,8 +192,8 @@ class MazeGenerator(ABC):
             print("Error: Maze too small for '42' pattern. Omitting pattern.")
             self.skip_pattern = True
         if self.skip_pattern is False:
-            if (self.config.ENTRY in self._get_42_coords
-               or self.config.EXIT in self._get_42_coords):
+            if (self.config.ENTRY in self._get_42_coords()
+               or self.config.EXIT in self._get_42_coords()):
                 print("[ERROR]: Entry/Exit cells can't be "
                       "inside the 42 pattern.")
                 sys.exit(1)
@@ -282,6 +265,13 @@ class MazeGenerator(ABC):
             grid (list[list[int]]): The maze grid to modify.
             ft_pattern (list[list[bool]]): Matrix where True is a '42' cell.
         """
+        MOVEMENTS: dict[str, tuple[int, int, int, int]] = {
+            "E": (0, 1, -2, -8),
+            "S": (1, 0, -4, -1),
+            "W": (0, -1, -8, -2),
+            "N": (-1, 0, -1, -4)
+        }
+
         L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
         extra_corrs = 0
         while extra_corrs < L:
@@ -291,7 +281,7 @@ class MazeGenerator(ABC):
                 continue
 
             valid_neighbours = []
-            for direction, (dy, dx, c_w, n_w) in self.MOVEMENTS.items():
+            for direction, (dy, dx, c_w, n_w) in MOVEMENTS.items():
                 ny, nx = y + dy, x + dx
                 if (0 <= ny < self.config.HEIGHT
                    and 0 <= nx < self.config.WIDTH):
