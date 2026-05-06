@@ -48,12 +48,10 @@ class Maze(BaseModel):
         entry: tuple[int, int]
         exit: tuple[int, int]
     """
-    model_config = ConfigDict(frozen=True)
-
     maze_map: str
     entry: tuple[int, int]
     exit: tuple[int, int]
-    maze_solutions: list[str] = Field(init=False)
+    maze_solutions: list[str] = []
 
     @model_validator(mode="after")
     def set_solutions(self) -> "Maze":
@@ -65,7 +63,7 @@ class Maze(BaseModel):
         Returns:
             Self: Need for model_validator
         """
-        object.__setattr__(self, "maze_solutions", self.maze_solutioneer())
+        self.maze_solutions = self.maze_solutioneer()
         return self
 
     def maze_solutioneer(self) -> list[str]:
@@ -192,8 +190,9 @@ class MazeGenerator(ABC):
             print("Error: Maze too small for '42' pattern. Omitting pattern.")
             self.skip_pattern = True
         if self.skip_pattern is False:
-            if (self.config.ENTRY in self._get_42_coords()
-               or self.config.EXIT in self._get_42_coords()):
+            xe, ye = self.config.ENTRY
+            xx, yx = self.config.EXIT
+            if ((ye, xe) or (yx, xx)) in self._get_42_coords():
                 print("[ERROR]: Entry/Exit cells can't be "
                       "inside the 42 pattern.")
                 sys.exit(1)
