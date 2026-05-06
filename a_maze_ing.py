@@ -77,6 +77,17 @@ if (__name__ == "__main__" and
         **config.model_dump())
     visualize(create_maze_pipeline(maze_generator, config.OUTPUT_FILE))
 elif __name__ == "__main__":
+    # maze_generator: MazeGenerator = MazeGeneratorFactory().create_generator(
+    #     WIDTH=50,
+    #     HEIGHT=50,
+    #     ENTRY=(4,5),
+    #     EXIT=(49, 49),
+    #     PERFECT=False,
+    #     SEED=None,
+    #     ALGORITHM=None,
+    #     EXTRA=None
+    # )
+    # visualize(maze_generator.generate)
     print("""Only 2 arguments are accepted:
 -The flag: '--v2'
 -A configuration file name""")
