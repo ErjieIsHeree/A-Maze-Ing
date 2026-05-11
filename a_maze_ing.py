@@ -59,7 +59,7 @@ def create_maze_pipeline(
             Maze: The Maze dataclass with all user information of the maze
         """
         maze: Maze = maze_generator.generate()
-        write_output(maze, output_file)
+        write_output(maze, output_file, True)
         return maze
     return _
 
@@ -73,21 +73,14 @@ if (__name__ == "__main__" and
             sys.argv[2] if sys.argv[1] == "--v2" else sys.argv[1], True)
         pass
 
-    maze_generator = MazeGeneratorFactory().create_generator(
-        **config.model_dump())
+    try:
+        maze_generator = MazeGeneratorFactory().create_generator(
+            **config.model_dump())
+    except Exception as err:
+        print(f"[ERROR]: {err}")
+        sys.exit(1)
     visualize(create_maze_pipeline(maze_generator, config.OUTPUT_FILE))
 elif __name__ == "__main__":
-    maze_generator: MazeGenerator = MazeGeneratorFactory().create_generator(
-        WIDTH=10,
-        HEIGHT=10,
-        ENTRY=(4, 5),
-        EXIT=(9, 9),
-        PERFECT=True,
-        SEED=None,
-        ALGORITHM=None,
-        EXTRA=None
-    )
-    visualize(maze_generator.generate)
     print("""Only 2 arguments are accepted:
 -The flag: '--v2'
 -A configuration file name""")

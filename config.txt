@@ -1,13 +1,11 @@
-WIDTH=
-HEIGHT=
-ENTRY=
-EXIT=
-OUTPUT_FILE=
-PERFECT=
-SEED=
-ALGORITHM=
-
-
+WIDTH=32
+HEIGHT=32
+ENTRY=0,0
+EXIT=31,31
+OUTPUT_FILE=a
+PERFECT=false
+SEED=1
+ALGORITHM=dfs
 # WIDTH Maze width (number of cells)        example: WIDTH=20               (20)
 # HEIGHT Maze height                        example: HEIGHT=15              (15)
 # ENTRY Entry coordinates (x,y)             example: ENTRY=0,0              (0,0)

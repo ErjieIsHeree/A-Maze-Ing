@@ -63,7 +63,10 @@ class Maze(BaseModel):
         Returns:
             Self: Need for model_validator
         """
-        self.maze_solutions = self.maze_solutioneer_shortest()  # cambiar
+        if (len(self.maze_map) > 1056):
+            self.maze_solutions = self.maze_solutioneer_shortest()  # cambiar
+        else:
+            self.maze_solutions = self.maze_solutioneer()
         return self
 
     def maze_solutioneer(self) -> list[str]:
@@ -78,8 +81,8 @@ class Maze(BaseModel):
                 for line in self.maze_map.strip().split('\n')]
         height = len(grid)
         width = len(grid[0])
-        start_y, start_x = self.entry
-        end_y, end_x = self.exit
+        start_x, start_y = self.entry
+        end_x, end_y = self.exit
 
         directions = [
             (-1, 0, 1, 'N'),  # Norte: bit 1
@@ -124,8 +127,8 @@ class Maze(BaseModel):
                 for line in self.maze_map.strip().split('\n')]
         height = len(grid)
         width = len(grid[0])
-        start_y, start_x = self.entry
-        end_y, end_x = self.exit
+        start_x, start_y = self.entry
+        end_x, end_y = self.exit
 
         directions = [
             (-1, 0, 1, 'N'),  # Norte: bit 1
@@ -542,7 +545,7 @@ class MazeGeneratorFactory(BaseModel):
 
         if config.ALGORITHM:
             for algorithm in Algorithms:
-                if algorithm.name == config.ALGORITHM.lower():
+                if algorithm.name.lower() == config.ALGORITHM.lower():
                     return algorithm.value(config)
             raise ValueError("This algorithm doesn't exist")
         return DFSMazeGenerator(config)
