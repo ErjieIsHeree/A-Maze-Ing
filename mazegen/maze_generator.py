@@ -63,7 +63,7 @@ class Maze(BaseModel):
         Returns:
             Self: Need for model_validator
         """
-        self.maze_solutions = self.maze_solutioneer()
+        self.maze_solutions = self.maze_solutioneer_shortest()  # cambiar
         return self
 
     def maze_solutioneer(self) -> list[str]:
@@ -179,16 +179,28 @@ class MazeGenerator(ABC):
 
     def validate_config(self) -> None:
         """
-        Checks if the maze dimensions are large enough to include the '42'
-        pattern. According to the subject, if the maze is too small, the
-        pattern is omitted and an error message is displayed, but the
-        generation continues.
-
-        Raises ERROR if ENTRY or EXIT cells are part of the 42 pattern.
+        Validates maze dimensions, entry/exit points, and checks if the
+        dimensions are large enough to include the '42' pattern.
         """
-        if self.config.WIDTH < 9 or self.config.HEIGHT < 7:
-            print("Error: Maze too small for '42' pattern. Omitting pattern.")
+        cnf = self.config
+        if cnf.WIDTH <= 0 or cnf.HEIGHT <= 0:
+            print("[ERROR] WIDTH and HEIGHT must be positive integers.")
+            sys.exit(1)
+
+        for (x, y) in [cnf.ENTRY, cnf.EXIT]:
+            if not (0 <= x < cnf.WIDTH and 0 <= y < cnf.HEIGHT):
+                print(f"[ERROR] ENTRY and EXIT must be within grid bounds: "
+                      f"x in [0, {cnf.WIDTH}), y in [0, {cnf.HEIGHT})")
+                sys.exit(1)
+
+        if cnf.ENTRY == cnf.EXIT:
+            print("[ERROR] ENTRY and EXIT must be different coordinates.")
+            sys.exit(1)
+
+        if cnf.WIDTH < 9 or cnf.HEIGHT < 7:
+            print("[ERROR] Maze too small for '42' pattern. Omitting pattern.")
             self.skip_pattern = True
+
         if self.skip_pattern is False:
             xe, ye = self.config.ENTRY
             xx, yx = self.config.EXIT

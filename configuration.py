@@ -81,7 +81,8 @@ def parse_bool(txt: str) -> bool:
         sys.exit(1)
 
 
-def get_val(key: str, data: Dict[str, str], defs: Dict[str, str]) -> str:
+def get_val(key: str, data: Dict[str, str], defs: Dict[str, str],
+            use_defaults: bool) -> str:
     """Extracts a value from data, removing it, or returns a default.
 
     Args:
@@ -95,7 +96,11 @@ def get_val(key: str, data: Dict[str, str], defs: Dict[str, str]) -> str:
 
     val = data.pop(key, "")
     if val == "":
-        return defs.get(key, "")
+        if use_defaults:
+            return defs.get(key, "")
+        else:
+            print(f"Error: Missing or empty key: {key}")
+            sys.exit(1)
     return val
 
 
@@ -133,42 +138,58 @@ def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implem
                 if not line or line.startswith('#'):
                     continue
                 if '=' in line:
-                    key, value = line.split('=', 1)
+                    key, value = line.split('=', 1)     # se aceptan espacios (?)
                     key = key.strip()
+                    value = value.strip()
+                    if not key or not value:
+                        if not use_v2:
+                            print(f"Error in {file}: Key or value can't"
+                                  "be empty.")
+                            sys.exit(1)
                     if key:
-                        datadict[key] = value.strip()
-    except FileNotFoundError:  # !! many more errors could happen at this point like, permission error, UnexpectedIOErrors...
+                        datadict[key] = value
+                else:
+                    if not use_v2:
+                        print(f"Error in {file}: Invalid format. "
+                              "Expected 'key=value'.")
+                        sys.exit(1)
+    except FileNotFoundError:
         print(f"Error: The file {file} was not found.")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error in file {file}: {e}")
         sys.exit(1)
 
     mandatory_keys: List[str] = ["WIDTH", "HEIGHT", "ENTRY", "EXIT",
                                  "OUTPUT_FILE", "PERFECT"]
-    for key in mandatory_keys:
+    for key in mandatory_keys:      # mandatory también en v2 (?)
         if key not in datadict.keys():
             print(f"Error: Mandatory key {key} is missing in {file}")
             sys.exit(1)
 
     try:  #  TODO change this part so that defaults gets to be an optional version
-        width = int(get_val("WIDTH", datadict, defaults))
-        height = int(get_val("HEIGHT", datadict, defaults))
-        entry = parse_coords(get_val("ENTRY", datadict, defaults))
-        exit = parse_coords(get_val("EXIT", datadict, defaults))
-        output_file = get_val("OUTPUT_FILE", datadict, defaults)
-        perfect = parse_bool(get_val("PERFECT", datadict, defaults))
-        algorithm = get_val("ALGORITHM", datadict, defaults)
-        seed_raw = get_val("SEED", datadict, defaults)
+        width = int(get_val("WIDTH", datadict, defaults, use_v2))
+        height = int(get_val("HEIGHT", datadict, defaults, use_v2))
+        entry = parse_coords(get_val("ENTRY", datadict, defaults, use_v2))
+        exit = parse_coords(get_val("EXIT", datadict, defaults, use_v2))
+        output_file = get_val("OUTPUT_FILE", datadict, defaults, use_v2)
+        perfect = parse_bool(get_val("PERFECT", datadict, defaults, use_v2))
+        algorithm = get_val("ALGORITHM", datadict, defaults, use_v2)
+        seed_raw = get_val("SEED", datadict, defaults, use_v2)
         seed = float(seed_raw) if seed_raw != "None" else None
 
-        if width <= 0 or height <= 0:
-            raise ValueError("WIDTH and HEIGHT must be positive integers.")
+        # lógica de validación laberíntica. Añadida a validate_config de MazeGenerator. se podría añadir como @model_validator a class Configuration (?).
 
-        if entry == exit:
-            raise ValueError("ENTRY and EXIT must be different coordinates.")
+        # if width <= 0 or height <= 0:
+        #     raise ValueError("WIDTH and HEIGHT must be positive integers.")
 
-        for (x, y) in [entry, exit]:
-            if not (0 <= x < width and 0 <= y < height):
-                raise ValueError(f"ENTRY and EXIT must be within grid bounds: "
-                                 f"x in [0, {width}), y in [0, {height})")
+        # if entry == exit:
+        #     raise ValueError("ENTRY and EXIT must be different coordinates.")
+
+        # for (x, y) in [entry, exit]:
+        #     if not (0 <= x < width and 0 <= y < height):
+        #         raise ValueError(f"ENTRY and EXIT must be within grid bounds: "
+        #                          f"x in [0, {width}), y in [0, {height})")
 
         extra = datadict if datadict else None
 
