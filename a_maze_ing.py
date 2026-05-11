@@ -59,7 +59,7 @@ def create_maze_pipeline(
             Maze: The Maze dataclass with all user information of the maze
         """
         maze: Maze = maze_generator.generate()
-        write_output(maze, output_file, True)
+        write_output(maze, output_file, False)
         return maze
     return _
 
