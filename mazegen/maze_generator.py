@@ -282,6 +282,7 @@ class MazeGenerator(ABC):
         Args:
             grid (list[list[int]]): The maze grid to modify.
             ft_pattern (list[list[bool]]): Matrix where True is a '42' cell.
+            L: number of walls to break. This depends on the maze size.
         """
         MOVEMENTS: dict[str, tuple[int, int, int, int]] = {
             "E": (0, 1, 2, 8),
@@ -291,6 +292,26 @@ class MazeGenerator(ABC):
         }
 
         extra_corrs = 0
+
+        ex, ey = self.config.ENTRY
+        entry_dirs = list(MOVEMENTS.values())
+        self.rng.shuffle(entry_dirs)
+        entry_break = False
+        for dy, dx, c_w, n_w in entry_dirs:
+            ny, nx = ey + dy, ex + dx
+            if (0 <= ny < self.config.HEIGHT
+               and 0 <= nx < self.config.WIDTH):
+                if not ft_pattern[ny][nx] and (grid[ey][ex] & c_w):
+                    grid[ey][ex] &= ~c_w
+                    grid[ny][nx] &= ~n_w
+                    extra_corrs += 1
+                    entry_break = True
+                    break
+
+        if not entry_break:
+            print("[ERROR]: Could not verify multiple solutions "
+                  "for this maze.")
+
         attempts = 0
         max_attemps = L * 10
         while extra_corrs < L and attempts < max_attemps:
@@ -389,26 +410,13 @@ class DFSMazeGenerator(MazeGenerator):
         self._run_dfs(grid, visited)
 
         if not self.config.PERFECT:
-            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))
+            if self.config.HEIGHT * self.config.WIDTH < 300:
+                L = max(1,
+                        int((self.config.WIDTH * self.config.HEIGHT) * 0.02))
+            else:
+                L = max(1,
+                        int((self.config.WIDTH * self.config.HEIGHT) * 0.05))
             self._add_loops(grid, ft_pattern, L)
-
-            first_maze = Maze(
-                maze_map=self._grid_to_hex_str(grid),
-                entry=self.config.ENTRY,
-                exit=self.config.EXIT
-            )
-            maximum = 10
-            while len(first_maze.maze_solutions) <= 1 and maximum > 0:
-                self._add_loops(grid, ft_pattern, 1)
-                first_maze = Maze(
-                    maze_map=self._grid_to_hex_str(grid),
-                    entry=self.config.ENTRY,
-                    exit=self.config.EXIT
-                )
-                maximum -= 1
-            if len(first_maze.maze_solutions) <= 1:
-                print("[WARNING]: Could not create multiple solutions """
-                      "for this maze.")
 
         return Maze(
             maze_map=self._grid_to_hex_str(grid),
@@ -476,26 +484,13 @@ class GTMazeGenerator(DFSMazeGenerator):
         self._run_growing_tree(grid, visited)
 
         if not self.config.PERFECT:
-            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))
+            if self.config.HEIGHT * self.config.WIDTH < 300:
+                L = max(1,
+                        int((self.config.WIDTH * self.config.HEIGHT) * 0.02))
+            else:
+                L = max(1,
+                        int((self.config.WIDTH * self.config.HEIGHT) * 0.05))
             self._add_loops(grid, ft_pattern, L)
-
-            first_maze = Maze(
-                maze_map=self._grid_to_hex_str(grid),
-                entry=self.config.ENTRY,
-                exit=self.config.EXIT
-            )
-            maximum = 10
-            while len(first_maze.maze_solutions) <= 1 and maximum > 0:
-                self._add_loops(grid, ft_pattern, 1)
-                first_maze = Maze(
-                    maze_map=self._grid_to_hex_str(grid),
-                    entry=self.config.ENTRY,
-                    exit=self.config.EXIT
-                )
-                maximum -= 1
-            if len(first_maze.maze_solutions) <= 1:
-                print("[WARNING]: Could not create multiple solutions """
-                      "for this maze.")
 
         return Maze(
             maze_map=self._grid_to_hex_str(grid),
