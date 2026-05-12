@@ -403,6 +403,9 @@ class DFSMazeGenerator(MazeGenerator):
                     exit=self.config.EXIT
                 )
                 maximum -= 1
+            if len(first_maze.maze_solutions) <= 1:
+                print("[WARNING]: Could not create multiple solutions """
+                      "for this maze.")
 
         return Maze(
             maze_map=self._grid_to_hex_str(grid),
@@ -487,6 +490,9 @@ class GTMazeGenerator(DFSMazeGenerator):
                     exit=self.config.EXIT
                 )
                 maximum -= 1
+            if len(first_maze.maze_solutions) <= 1:
+                print("[WARNING]: Could not create multiple solutions """
+                      "for this maze.")
 
         return Maze(
             maze_map=self._grid_to_hex_str(grid),
