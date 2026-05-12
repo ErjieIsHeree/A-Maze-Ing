@@ -21,12 +21,12 @@ class MapVisuals(BaseModel):
         path_c (str): The char used for solution paths
         corner (str): The char used for corners
     """
-    corner: str = Field(min_length=1, max_length=1, default="+")
-    h_wall: str = Field(min_length=3, max_length=3, default="---")
-    v_wall: str = Field(min_length=1, max_length=1, default="|")
+    corner: str = Field(min_length=1, max_length=1, default="█")
+    h_wall: str = Field(min_length=3, max_length=3, default="███")
+    v_wall: str = Field(min_length=1, max_length=1, default="█")
 
-    entry_c: str = Field(min_length=1, max_length=1, default="X")
-    exit_c: str = Field(min_length=1, max_length=1, default="O")
+    entry_c: str = Field(min_length=1, max_length=1, default="🐿️")
+    exit_c: str = Field(min_length=1, max_length=1, default="​​​🪶​​​")
     path_c: str = Field(min_length=1, max_length=1, default="8")
     pass
 
@@ -91,7 +91,7 @@ def create_maze_row(
         ("".join(
             f"{map_visual.corner}{map_visual.h_wall}"
             for _ in partial_map
-        ) + "+\n") if with_roof else ""
+        ) + map_visual.corner + "\n") if with_roof else ""
     )
 
     wall += map_visual.v_wall

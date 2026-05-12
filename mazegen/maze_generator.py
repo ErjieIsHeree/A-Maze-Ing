@@ -270,7 +270,8 @@ class MazeGenerator(ABC):
         return "\n".join(lines) + "\n"
 
     def _add_loops(self, grid: list[list[int]],
-                   ft_pattern: list[list[bool]]) -> None:
+                   ft_pattern: list[list[bool]],
+                   L: int) -> None:
         """
         Adds cycles to the maze by removing L extra walls
         between adjacent cells.
@@ -280,33 +281,34 @@ class MazeGenerator(ABC):
             ft_pattern (list[list[bool]]): Matrix where True is a '42' cell.
         """
         MOVEMENTS: dict[str, tuple[int, int, int, int]] = {
-            "E": (0, 1, -2, -8),
-            "S": (1, 0, -4, -1),
-            "W": (0, -1, -8, -2),
-            "N": (-1, 0, -1, -4)
+            "E": (0, 1, 2, 8),
+            "S": (1, 0, 4, 1),
+            "W": (0, -1, 8, 2),
+            "N": (-1, 0, 1, 4)
         }
 
-        L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
         extra_corrs = 0
-        while extra_corrs < L:
+        attempts = 0
+        max_attemps = L * 10    # cambiar?
+        while extra_corrs < L and attempts < max_attemps:
+            attempts += 1
             y = self.rng.randint(0, self.config.HEIGHT - 1)
             x = self.rng.randint(0, self.config.WIDTH - 1)
             if ft_pattern[y][x]:
                 continue
 
             valid_neighbours = []
-            for direction, (dy, dx, c_w, n_w) in MOVEMENTS.items():
+            for dy, dx, c_w, n_w in MOVEMENTS.values():
                 ny, nx = y + dy, x + dx
                 if (0 <= ny < self.config.HEIGHT
                    and 0 <= nx < self.config.WIDTH):
-                    if not ft_pattern[ny][nx]:
-                        if grid[y][x] & abs(c_w):
-                            valid_neighbours.append((ny, nx, c_w, n_w))
+                    if not ft_pattern[ny][nx] and (grid[y][x] & c_w):
+                        valid_neighbours.append((ny, nx, c_w, n_w))
 
             if valid_neighbours:
                 ny, nx, c_w, n_w = self.rng.choice(valid_neighbours)
-                grid[y][x] += c_w
-                grid[ny][nx] += n_w
+                grid[y][x] &= ~c_w
+                grid[ny][nx] &= ~n_w
                 extra_corrs += 1
 
 
@@ -384,7 +386,23 @@ class DFSMazeGenerator(MazeGenerator):
         self._run_dfs(grid, visited)
 
         if not self.config.PERFECT:
-            self._add_loops(grid, ft_pattern)
+            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
+            self._add_loops(grid, ft_pattern, L)
+
+            first_maze = Maze(
+                maze_map=self._grid_to_hex_str(grid),
+                entry=self.config.ENTRY,
+                exit=self.config.EXIT
+            )
+            maximum = 10    # ?
+            while len(first_maze.maze_solutions) <= 1 and maximum > 0:
+                self._add_loops(grid, ft_pattern, 1)
+                first_maze = Maze(
+                    maze_map=self._grid_to_hex_str(grid),
+                    entry=self.config.ENTRY,
+                    exit=self.config.EXIT
+                )
+                maximum -= 1
 
         return Maze(
             maze_map=self._grid_to_hex_str(grid),
@@ -452,7 +470,23 @@ class GTMazeGenerator(DFSMazeGenerator):
         self._run_growing_tree(grid, visited)
 
         if not self.config.PERFECT:
-            self._add_loops(grid, ft_pattern)
+            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
+            self._add_loops(grid, ft_pattern, L)
+
+            first_maze = Maze(
+                maze_map=self._grid_to_hex_str(grid),
+                entry=self.config.ENTRY,
+                exit=self.config.EXIT
+            )
+            maximum = 10    # ?
+            while len(first_maze.maze_solutions) <= 1 and maximum > 0:
+                self._add_loops(grid, ft_pattern, 1)
+                first_maze = Maze(
+                    maze_map=self._grid_to_hex_str(grid),
+                    entry=self.config.ENTRY,
+                    exit=self.config.EXIT
+                )
+                maximum -= 1
 
         return Maze(
             maze_map=self._grid_to_hex_str(grid),

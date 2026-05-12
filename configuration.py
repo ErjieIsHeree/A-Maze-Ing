@@ -34,7 +34,7 @@ class Configuration(BaseModel):
     pass
 
 
-def parse_coords(coords: str) -> Tuple[int, int]:
+def parse_coords(coords: str, label: str) -> Tuple[int, int]:
     """Parses a string of comma-separated coordinates into a tuple.
 
     Args:
@@ -53,8 +53,8 @@ def parse_coords(coords: str) -> Tuple[int, int]:
             raise ValueError()
         return (int(clist[0]), int(clist[1]))
     except ValueError:
-        print(f"Error: Invalid syntax: {coords}. Coordinates must be "
-              "only two numeric values and follow 'x,y'")
+        print(f"[ERROR] Invalid syntax in {label}: '{coords}'. Coordinates "
+              "must be only two numeric values and follow 'x,y'")
         sys.exit(1)
 
 
@@ -94,14 +94,18 @@ def get_val(key: str, data: Dict[str, str], defs: Dict[str, str],
         str: The value from data if present and not empty, otherwise default.
     """
 
-    val = data.pop(key, "")
-    if val == "":
-        if use_defaults:
-            return defs.get(key, "")
-        else:
-            print(f"Error: Missing or empty key: {key}")
-            sys.exit(1)
-    return val
+    # val = data.pop(key, "")
+    # if val == "":
+    #     if use_defaults:
+    #         return defs.get(key, "")
+    #     else:
+    #         print(f"Error: Missing or empty key: {key}")
+    #         sys.exit(1)
+    # return val
+
+    if use_defaults:
+        return data.get(key, defs.get(key, ""))
+    return data.get(key, "")
 
 
 def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implement v2 for default configs
@@ -127,56 +131,63 @@ def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implem
         "EXIT": "19,14",
         "OUTPUT_FILE": "maze.txt",
         "PERFECT": "True",
-        "ALGORITHM": "dfs",   # cuidado caso perfect definido false pero algoritmo no definido
+        "ALGORITHM": "dfs",
         "SEED": "None"
     }
     datadict: Dict[str, str] = {}
     try:
         with open(file, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith('#'):
+            for idl, line in enumerate(f, 1):
+                line = line.rstrip('\n')
+                if line.startswith('#'):
                     continue
-                if '=' in line:
-                    key, value = line.split('=', 1)     # se aceptan espacios (?)
-                    key = key.strip()
-                    value = value.strip()
-                    if not key or not value:
-                        if not use_v2:
-                            print(f"Error in {file}: Key or value can't"
-                                  "be empty.")
-                            sys.exit(1)
-                    if key:
-                        datadict[key] = value
-                else:
-                    if not use_v2:
-                        print(f"Error in {file}: Invalid format. "
-                              "Expected 'key=value'.")
+                if not use_v2:
+                    if line == "":
+                        print(f"[ERROR] (line {idl} in {file}) Empty line.")
                         sys.exit(1)
+                    if '=' not in line:
+                        print(f"[ERROR] (line {idl} in {file}) Invalid format."
+                              " Expected 'KEY=VALUE'.")
+                        sys.exit(1)
+                    key, value = line.split('=', 1)
+                    if key.strip() != key or value.strip() != value:
+                        print(f"[ERROR] (line {idl} in {file}) Excess spaces.")
+                        sys.exit(1)
+                    datadict[key] = value       # if key?
+                else:
+                    line = line.strip()
+                    if '=' in line:
+                        key, value = line.split('=', 1)
+                        if key.strip() and value.strip():
+                            datadict[key.strip()] = value.strip()
+
     except FileNotFoundError:
-        print(f"Error: The file {file} was not found.")
+        print(f"[ERROR] The file {file} was not found.")
         sys.exit(1)
     except Exception as e:
-        print(f"Error in file {file}: {e}")
+        print(f"[ERROR] (File {file}): {e}")
         sys.exit(1)
 
-    mandatory_keys: List[str] = ["WIDTH", "HEIGHT", "ENTRY", "EXIT",
-                                 "OUTPUT_FILE", "PERFECT"]
-    for key in mandatory_keys:      # mandatory también en v2 (?)
-        if key not in datadict.keys():
-            print(f"Error: Mandatory key {key} is missing in {file}")
-            sys.exit(1)
+    if not use_v2:      # qué pasa en vestricta si solo mandatory keys?
+        mandatory_keys: List[str] = ["WIDTH", "HEIGHT", "ENTRY", "EXIT",
+                                     "OUTPUT_FILE", "PERFECT"]
+        for key in mandatory_keys:
+            if key not in datadict.keys():
+                print(f"[ERROR] Mandatory key {key} is missing in {file}")
+                sys.exit(1)
 
     try:  #  TODO change this part so that defaults gets to be an optional version
         width = int(get_val("WIDTH", datadict, defaults, use_v2))
         height = int(get_val("HEIGHT", datadict, defaults, use_v2))
-        entry = parse_coords(get_val("ENTRY", datadict, defaults, use_v2))
-        exit = parse_coords(get_val("EXIT", datadict, defaults, use_v2))
+        entry = parse_coords(get_val("ENTRY", datadict, defaults, use_v2),
+                             "ENTRY")
+        exit = parse_coords(get_val("EXIT", datadict, defaults, use_v2),
+                            "EXIT")
         output_file = get_val("OUTPUT_FILE", datadict, defaults, use_v2)
         perfect = parse_bool(get_val("PERFECT", datadict, defaults, use_v2))
         algorithm = get_val("ALGORITHM", datadict, defaults, use_v2)
         seed_raw = get_val("SEED", datadict, defaults, use_v2)
-        seed = float(seed_raw) if seed_raw != "None" else None
+        seed = float(seed_raw) if seed_raw not in ["None", ""] else None
 
         # lógica de validación laberíntica. Añadida a validate_config de MazeGenerator. se podría añadir como @model_validator a class Configuration (?).
 
@@ -206,7 +217,7 @@ def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implem
         )
 
     except ValueError as e:
-        print(f"Error found in configuration file {file}: {e}")
+        print(f"[ERROR] (File {file}): {e}")
         sys.exit(1)
 
 
