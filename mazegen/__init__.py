@@ -1,4 +1,3 @@
-
 from .maze_generator import (
     MazeGeneratorFactory,
     Maze,
