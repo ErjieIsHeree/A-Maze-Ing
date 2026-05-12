@@ -114,14 +114,22 @@ from mazegen import MazeGeneratorFactory, MazeConfiguration, MazeGenerator, Maze
 
 
 if __name__ == "__main__":
-    config: MazeConfiguration("<your params>")
+    config: MazeConfiguration(
+        WIDTH=32,
+        HEIGHT=32,
+        ENTRY=0,0,
+        EXIT=0,0,
+        PERFECT=False
+        SEED=None
+        ALGORITHM="dfs"
+        EXTRA=None
+    )
     maze_gen: MazeGenerator = MazeGeneratorFactory().create_generator(config)
-    maze: Maze = maze_gen.generate
+    maze: Maze = maze_gen.generate()
     print(maze.maze_map)
     print(maze.entry)
     print(maze.exit)
     print(maze.maze_solutions)
-
 ```
 
 ### Team and project management

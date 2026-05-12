@@ -21,7 +21,7 @@ def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
     try:
         with open(file, "w") as f:
             f.write(maze_info.maze_map)
-            f.write(f"\n\n{maze_info.entry[0]},{maze_info.entry[1]}")
+            f.write(f"\n{maze_info.entry[0]},{maze_info.entry[1]}")
             f.write(f"\n{maze_info.exit[0]},{maze_info.exit[1]}\n")
             if is_pro:
                 text = "\n".join(
