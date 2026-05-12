@@ -410,12 +410,7 @@ class DFSMazeGenerator(MazeGenerator):
         self._run_dfs(grid, visited)
 
         if not self.config.PERFECT:
-            if self.config.HEIGHT * self.config.WIDTH < 300:
-                L = max(1,
-                        int((self.config.WIDTH * self.config.HEIGHT) * 0.02))
-            else:
-                L = max(1,
-                        int((self.config.WIDTH * self.config.HEIGHT) * 0.05))
+            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))
             self._add_loops(grid, ft_pattern, L)
 
         return Maze(
@@ -484,12 +479,7 @@ class GTMazeGenerator(DFSMazeGenerator):
         self._run_growing_tree(grid, visited)
 
         if not self.config.PERFECT:
-            if self.config.HEIGHT * self.config.WIDTH < 300:
-                L = max(1,
-                        int((self.config.WIDTH * self.config.HEIGHT) * 0.02))
-            else:
-                L = max(1,
-                        int((self.config.WIDTH * self.config.HEIGHT) * 0.05))
+            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))
             self._add_loops(grid, ft_pattern, L)
 
         return Maze(
