@@ -1,8 +1,14 @@
 from collections.abc import Callable
 from enum import Enum
 import random
+import sys
 
-from pydantic import BaseModel, Field
+try:
+    from pydantic import BaseModel, Field
+    BaseModel
+    Field
+except Exception as err:
+    sys.exit(f"[ERROR]: {err}. Install it.")
 
 from mazegen import Maze
 

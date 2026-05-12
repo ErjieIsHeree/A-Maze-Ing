@@ -1,7 +1,13 @@
 import sys
 from typing import List, Optional, Dict, Tuple
 
-from pydantic import BaseModel, ConfigDict
+
+try:
+    from pydantic import BaseModel, ConfigDict
+    BaseModel
+    ConfigDict
+except Exception as err:
+    sys.exit(f"[ERROR]: {err}. Install it.")
 
 
 class Configuration(BaseModel):
