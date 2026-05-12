@@ -1,4 +1,3 @@
-  # TODO Test this
 import sys
 from typing import List, Optional, Dict, Tuple
 
@@ -94,21 +93,12 @@ def get_val(key: str, data: Dict[str, str], defs: Dict[str, str],
         str: The value from data if present and not empty, otherwise default.
     """
 
-    # val = data.pop(key, "")
-    # if val == "":
-    #     if use_defaults:
-    #         return defs.get(key, "")
-    #     else:
-    #         print(f"Error: Missing or empty key: {key}")
-    #         sys.exit(1)
-    # return val
-
     if use_defaults:
         return data.get(key, defs.get(key, ""))
     return data.get(key, "")
 
 
-def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implement v2 for default configs
+def get_config(file: str, use_v2: bool = False) -> Configuration:
     """Reads and validates a configuration file to create a Configuration
     object.
 
@@ -153,7 +143,7 @@ def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implem
                     if key.strip() != key or value.strip() != value:
                         print(f"[ERROR] (line {idl} in {file}) Excess spaces.")
                         sys.exit(1)
-                    datadict[key] = value       # if key?
+                    datadict[key] = value
                 else:
                     line = line.strip()
                     if '=' in line:
@@ -168,7 +158,7 @@ def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implem
         print(f"[ERROR] (File {file}): {e}")
         sys.exit(1)
 
-    if not use_v2:      # qué pasa en vestricta si solo mandatory keys?
+    if not use_v2:
         mandatory_keys: List[str] = ["WIDTH", "HEIGHT", "ENTRY", "EXIT",
                                      "OUTPUT_FILE", "PERFECT"]
         for key in mandatory_keys:
@@ -176,7 +166,7 @@ def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implem
                 print(f"[ERROR] Mandatory key {key} is missing in {file}")
                 sys.exit(1)
 
-    try:  #  TODO change this part so that defaults gets to be an optional version
+    try:
         width = int(get_val("WIDTH", datadict, defaults, use_v2))
         height = int(get_val("HEIGHT", datadict, defaults, use_v2))
         entry = parse_coords(get_val("ENTRY", datadict, defaults, use_v2),
@@ -188,20 +178,6 @@ def get_config(file: str, use_v2: bool = False) -> Configuration:  # TODO implem
         algorithm = get_val("ALGORITHM", datadict, defaults, use_v2)
         seed_raw = get_val("SEED", datadict, defaults, use_v2)
         seed = float(seed_raw) if seed_raw not in ["None", ""] else None
-
-        # lógica de validación laberíntica. Añadida a validate_config de MazeGenerator. se podría añadir como @model_validator a class Configuration (?).
-
-        # if width <= 0 or height <= 0:
-        #     raise ValueError("WIDTH and HEIGHT must be positive integers.")
-
-        # if entry == exit:
-        #     raise ValueError("ENTRY and EXIT must be different coordinates.")
-
-        # for (x, y) in [entry, exit]:
-        #     if not (0 <= x < width and 0 <= y < height):
-        #         raise ValueError(f"ENTRY and EXIT must be within grid bounds: "
-        #                          f"x in [0, {width}), y in [0, {height})")
-
         extra = datadict if datadict else None
 
         return Configuration(

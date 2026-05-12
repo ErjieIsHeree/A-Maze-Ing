@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from typing import Optional
 from enum import Enum
 import random
 
@@ -59,12 +58,12 @@ def create_maze_row(
     class Wall(Enum):
         """A enumerator class for identifying walls.
 
-        Each binary of a 4 bits sequence (0000) represents a wall. Being it in the
-        corresponding order West - South - East - North. So that a 1 means close
-        and a 0 means opens.
+        Each binary of a 4 bits sequence (0000) represents a wall. Being it in
+        the corresponding order West - South - East - North. So that a 1 means
+        close and a 0 means opens.
 
-        Accordingly with that, the next numbers represents that only that wall is
-        closed:
+        Accordingly with that, the next numbers represents that only that wall
+        is closed:
             North = 1 (0001)
             EAST =  2 (0010)
             SOUTH = 4 (0100)
@@ -76,11 +75,13 @@ def create_maze_row(
         SOUTH = 4
         WEST = 8
         pass
+
     def is_closed_wall(map_block: str, wall_side: Wall) -> bool:
         """This function indentify if a wall of a block is closed
 
         Args:
-            map_block (str): A single character representating a block of the maze
+            map_block (str): A single character representating a block of the
+                maze
             wall_side (Wall): The wall side that want to check
 
         Returns:
@@ -140,7 +141,7 @@ def write_map(
     Returns:
         str: A visual representation of the maze in ASCII characters
     """
-    
+
     def get_path_coordinates(
         paths: list[str],
         entry: tuple[int, int]
@@ -174,7 +175,8 @@ def write_map(
                     Step.S if step_dir == Step.S.name else
                     Step.W
                 )
-                position = position[0] + step.value[0], position[1] + step.value[1]
+                position = (position[0] + step.value[0],
+                            position[1] + step.value[1])
                 path_coordinates.add(position)
             position = entry
         return path_coordinates
@@ -359,12 +361,13 @@ def visualize(
     while selection != 6:
         print("\033[u\033[J\n", end="")
         print(
-            f"Please enter a valid number (1-6)\n" if invalid_input else
-            (f"{color}{write_map(maze, maze_map_visual, with_solution, with_solutions)}\033[0m")
+            "Please enter a valid number (1-6)\n" if invalid_input else
+            (f"""{color}{write_map(maze, maze_map_visual, with_solution,
+             with_solutions)}\033[0m""")
         )
         invalid_input = False
         try:
-            selection = int(input(f"""Please insert a number from 1-6:
+            selection = int(input("""Please insert a number from 1-6:
 1 - Re-generate the maze
 2 - Show/Hide the shortest path to the exit
 3 - Change wall colours

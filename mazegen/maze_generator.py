@@ -1,4 +1,3 @@
-  # TODO Test this and change Self to the way of version py 3.10
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import overload, Any
@@ -64,7 +63,7 @@ class Maze(BaseModel):
             Self: Need for model_validator
         """
         if (len(self.maze_map) > 1056):
-            self.maze_solutions = self.maze_solutioneer_shortest()  # cambiar
+            self.maze_solutions = self.maze_solutioneer_shortest()
         else:
             self.maze_solutions = self.maze_solutioneer()
         return self
@@ -289,7 +288,7 @@ class MazeGenerator(ABC):
 
         extra_corrs = 0
         attempts = 0
-        max_attemps = L * 10    # cambiar?
+        max_attemps = L * 10
         while extra_corrs < L and attempts < max_attemps:
             attempts += 1
             y = self.rng.randint(0, self.config.HEIGHT - 1)
@@ -386,7 +385,7 @@ class DFSMazeGenerator(MazeGenerator):
         self._run_dfs(grid, visited)
 
         if not self.config.PERFECT:
-            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
+            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # TODO probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
             self._add_loops(grid, ft_pattern, L)
 
             first_maze = Maze(
@@ -394,7 +393,7 @@ class DFSMazeGenerator(MazeGenerator):
                 entry=self.config.ENTRY,
                 exit=self.config.EXIT
             )
-            maximum = 10    # ?
+            maximum = 10
             while len(first_maze.maze_solutions) <= 1 and maximum > 0:
                 self._add_loops(grid, ft_pattern, 1)
                 first_maze = Maze(
@@ -473,7 +472,7 @@ class GTMazeGenerator(DFSMazeGenerator):
         self._run_growing_tree(grid, visited)
 
         if not self.config.PERFECT:
-            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
+            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # TODO probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
             self._add_loops(grid, ft_pattern, L)
 
             first_maze = Maze(
@@ -481,7 +480,7 @@ class GTMazeGenerator(DFSMazeGenerator):
                 entry=self.config.ENTRY,
                 exit=self.config.EXIT
             )
-            maximum = 10    # ?
+            maximum = 10
             while len(first_maze.maze_solutions) <= 1 and maximum > 0:
                 self._add_loops(grid, ft_pattern, 1)
                 first_maze = Maze(
