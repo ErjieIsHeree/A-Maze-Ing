@@ -114,15 +114,12 @@ from mazegen import MazeGeneratorFactory, MazeConfiguration, MazeGenerator, Maze
 
 
 if __name__ == "__main__":
-    config: MazeConfiguration(
+    config: MazeConfiguration = MazeConfiguration(
         WIDTH=32,
         HEIGHT=32,
-        ENTRY=0,0,
-        EXIT=0,0,
-        PERFECT=False
-        SEED=None
-        ALGORITHM="dfs"
-        EXTRA=None
+        ENTRY=(0,0),
+        EXIT=(31,31),
+        PERFECT=True
     )
     maze_gen: MazeGenerator = MazeGeneratorFactory().create_generator(config)
     maze: Maze = maze_gen.generate()
