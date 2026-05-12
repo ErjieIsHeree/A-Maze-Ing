@@ -49,6 +49,7 @@ All the resources used to complete this project.
 - [W3Schools docs](https://www.w3schools.com/)
 - [GeeksForGeeks docs](https://www.geeksforgeeks.org/)
 - [Claude AI](https://claude.ai/)
+- [Algorithm comparison video](https://youtu.be/184Oair5iys?si=81fO_SfP80ieAoi-)
 
 ___
 

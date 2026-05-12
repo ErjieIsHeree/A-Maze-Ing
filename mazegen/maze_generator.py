@@ -515,15 +515,17 @@ class MazeGeneratorFactory(BaseModel):
     def create_generator(
         CONFIG: MazeConfiguration = Field()
     ) -> MazeGenerator:
-        """Creates the appropiate maze generator
+        """Creates the appropiate maze generator based on the configuration.
 
         If any configuration value is impossible, an exception will be raised.
-        Of course, if a Algorithm set doesn't exist, an exception will be
-        raised.
+        If the requested algorithm does not exist, an exception will be raised.
 
-        #  TODO devir a zeta que complete esto de abajo
-        Algorithms (Note that that algorithm string is case insensitive):
-            - DFS: The default algorithm...
+        Algorithms (Note that the algorithm string is case insensitive):
+            - DFS (default): Recursive Backtracker. Carves paths via
+            depth-first search.
+            - GT: Growing Tree. Alternates between DFS-style (newest cell)
+            and random-cell selection every few steps, producing a more
+            varied, branched texture while remaining efficient.
 
         Args:
             config (MazeConfiguration): The MazeConfiguration data-class used
@@ -546,15 +548,17 @@ class MazeGeneratorFactory(BaseModel):
         ALGORITHM: str | None = Field(max_length=255, default=None),
         EXTRA: dict[str, str] | None = Field(default=None)
     ) -> MazeGenerator:
-        """Creates the appropiate maze generator
+        """Creates the appropiate maze generator based on the configuration.
 
         If any configuration value is impossible, an exception will be raised.
-        Of course, if a Algorithm set doesn't exist, an exception will be
-        raised.
+        If the requested algorithm does not exist, an exception will be raised.
 
-        #  TODO devir a zeta que complete esto de abajo
-        Algorithms (Note that that algorithm string is case insensitive):
-            - DFS: The default algorithm...
+        Algorithms (Note that the algorithm string is case insensitive):
+            - DFS (default): Recursive Backtracker. Carves paths via
+            depth-first search.
+            - GT: Growing Tree. Alternates between DFS-style (newest cell)
+            and random-cell selection every few steps, producing a more
+            varied, branched texture while remaining efficient.
 
         Args:
             WIDTH (int): The width of the maze
