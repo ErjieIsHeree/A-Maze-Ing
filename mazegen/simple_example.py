@@ -1,4 +1,4 @@
-from maze_generator import (
+from .maze_generator import (
     MazeGeneratorFactory,
     MazeConfiguration,
     MazeGenerator,

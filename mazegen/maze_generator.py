@@ -94,7 +94,7 @@ class Maze(BaseModel):
             (0, -1, 8, 'W')   # Oeste: bit 8
         ]
 
-        all_paths = []
+        all_paths: list[str] = []
         current_path_visited = set()
 
         def f_recursive(y: int, x: int, path_str: str) -> None:
@@ -394,7 +394,12 @@ class DFSMazeGenerator(MazeGenerator):
         self._run_dfs(grid, visited)
 
         if not self.config.PERFECT:
-            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # TODO probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
+            if self.config.WIDTH * self.config.HEIGHT <= 900:
+                L = max(1,
+                        int((self.config.WIDTH * self.config.HEIGHT) * 0.02))
+            else:
+                L = max(1,
+                        int((self.config.WIDTH * self.config.HEIGHT) * 0.05))
             self._add_loops(grid, ft_pattern, L)
 
             def check_imperfect(g: list[list[int]]) -> bool:
@@ -481,7 +486,12 @@ class GTMazeGenerator(DFSMazeGenerator):
         self._run_growing_tree(grid, visited)
 
         if not self.config.PERFECT:
-            L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # TODO probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
+            if self.config.WIDTH * self.config.HEIGHT <= 900:
+                L = max(1,
+                        int((self.config.WIDTH * self.config.HEIGHT) * 0.02))
+            else:
+                L = max(1,
+                        int((self.config.WIDTH * self.config.HEIGHT) * 0.05))
             self._add_loops(grid, ft_pattern, L)
 
             def check_imperfect(g: list[list[int]]) -> bool:
