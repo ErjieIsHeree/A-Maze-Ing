@@ -59,11 +59,33 @@ project.
 
 ### Structure and format of your config file
 
-The structure of the configuration file is a KEY=VALUE file.
+The structure of the configuration file is a KEY=VALUE format. Depending on the execution mode, the parser behavior changes:
+- Strict Mode (no flag; use_v2=False):
+    All mandatory keys must be present, with valid values.
+    No empty lines, extra whitespace nor lines not following the format are allowed.
+    Commented lines are ignored.
+- Flexible Mode (--v2 flag; use_v2=True):
+    Spaces, empty lines and lines not following the format are allowed and ignored.
+    Default values are used if any key is missing or left empty.
 
-### The choosen maze generation algorithm  # TODO for zeta :)
+### The chosen maze generation algorithms
+**DFS (Depth-First Search) / Recursive Backtracker** and **Growing Tree** are the two algorithms implemented in this project.
 
-### The reason of the choosen maze generation  # TODO for zeta :)
+The DFS algorithm works by carving paths from a starting cell, always moving to a random unvisited neighbour and pushing it onto a stack. When it reaches a dead end, it backtracks through the stack until it finds a cell with available neighbours, continuing until every cell has been visited.
+
+The Growing Tree algorithm generalises DFS by maintaining an active cell list instead of a strict stack. It alternates between two selection strategies: most of the time it picks the most recently added cell (behaving like DFS), but every 4 steps in the same path it picks a random cell from the active list (behaving like Prim's). This produces a more varied texture while keeping long, winding corridors.
+
+### The reason for the chosen maze generation algorithms
+**DFS** was chosen as the primary algorithm for the following reasons:
+
+- It produces **perfect mazes** by construction (DFS on a grid is equivalent to building a spanning tree), satisfying the `PERFECT=True` requirement natively.
+- It generates long, winding corridors with few dead ends, making the maze visually appealing and genuinely difficult to solve — unlike Sidewinder or Binary Tree, whose biases are immediately obvious to an evaluator.
+- The implementation is simple and robust: an iterative stack avoids Python's recursion limit, and the bitmask wall representation (`N=1, E=2, S=4, W=8`) maps directly to the hexadecimal output format required by the subject.
+- Integrating the **42 pattern** is trivial: cells belonging to the pattern are pre-marked as visited before the DFS runs, so the algorithm naturally carves around them without any extra logic.
+
+**Growing Tree** was added as a second algorithm because it **shares ~80% of its code with the DFS implementation** (same grid structure, same wall-removal logic, same "42" pattern handling), so the additional cost was minimal. Its mixed selection strategy produces mazes with a noticeably different texture — slightly more branched and organic — which satisfies intention of supporting multiple generation algorithms while also giving the project more visual variety.
+
+Slower algorithms (Wilson's, Aldous-Broder) were discarded due to their unpredictable runtime on larger grids. Biased algorithms (Binary Tree, Sidewinder) were discarded because their structural patterns are trivially recognisable. Kruskal's and Eller's were discarded because their implementation complexity (Union-Find, per-row set management) offered no advantage over DFS for this project's requirements.
 
 ### Reusable parts of the code and how
 
@@ -109,7 +131,7 @@ if __name__ == "__main__":
 | Member           | Rol                 |
 | ---------------- | ------------------  |
 | exia (Erjie Xia) | Project manager     |
-| lduran-f (Luzia) | Algorithm developer |  # TODO ask if zeta wanna add her last name or change roles
+| lduran-f (Luzia) | Algorithm developer |
 
 - **Anticipated planning and evolution**
 
@@ -133,7 +155,9 @@ it, YET!
 My partner did her best at doing her part of the work while adapting to my
 structure. Even though I haven't explained it to her!
 
-*Zeta point of view:*  #  TODO for zeta
+*Zeta point of view:*
+I really enjoyed the algorithm research, understanding and implementation process and all the other tasks I had. This was a very enjoyable project and it was really exciting to see the mazes working!!
+Working with Erjie as a team has been great; he was understanding when I had to lower or increase the pace of work; he is extremely organized and was able to visualize the structure of the project before starting it and connected all the puzzle pieces perfectly. I'm proud of our work! :)
 
 - **Used tools**
 
