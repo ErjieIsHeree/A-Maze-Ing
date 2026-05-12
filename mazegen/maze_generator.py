@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import overload, Any
+from typing import overload, Any, cast
 import sys
 import random
 import copy
@@ -97,7 +97,7 @@ class Maze(BaseModel):
         all_paths = []
         current_path_visited = set()
 
-        def f_recursive(y: int, x: int, path_str: str):
+        def f_recursive(y: int, x: int, path_str: str) -> None:
 
             if (y, x) == (end_y, end_x):
                 all_paths.append(path_str)
@@ -593,6 +593,6 @@ class MazeGeneratorFactory(BaseModel):
         if config.ALGORITHM:
             for algorithm in Algorithms:
                 if algorithm.name.lower() == config.ALGORITHM.lower():
-                    return algorithm.value(config)
+                    return cast(MazeGenerator, algorithm.value(config))
             raise ValueError("This algorithm doesn't exist")
         return DFSMazeGenerator(config)
