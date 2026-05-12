@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import overload, Any
+from typing import overload, Any, Optional
 from pydantic import BaseModel, Field, model_validator, ConfigDict
 import sys
 import random
@@ -68,7 +68,7 @@ class Maze(BaseModel):
             self.maze_solutions = self.maze_solutioneer()
         return self
 
-    def maze_solutioneer(self) -> list[str]:
+    def maze_solutioneer(self, limit: Optional[int] = None) -> list[str]:
         """
         Finds ALL possible paths from entry to exit without
         revisiting the same cell in a single path.
@@ -94,6 +94,8 @@ class Maze(BaseModel):
         current_path_visited = set()
 
         def f_recursive(y: int, x: int, path_str: str):
+            if limit and len(all_paths) >= limit:
+                return
 
             if (y, x) == (end_y, end_x):
                 all_paths.append(path_str)
@@ -107,6 +109,9 @@ class Maze(BaseModel):
                     if (not (grid[y][x] & wall_bit) and
                        (ny, nx) not in current_path_visited):
                         f_recursive(ny, nx, path_str + char)
+
+                        if limit and len(all_paths) >= limit:
+                            break
 
             current_path_visited.remove((y, x))
 
@@ -388,22 +393,22 @@ class DFSMazeGenerator(MazeGenerator):
             L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # TODO probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
             self._add_loops(grid, ft_pattern, L)
 
-            first_maze = Maze(
-                maze_map=self._grid_to_hex_str(grid),
-                entry=self.config.ENTRY,
-                exit=self.config.EXIT
-            )
-            maximum = 10
-            while len(first_maze.maze_solutions) <= 1 and maximum > 0:
-                self._add_loops(grid, ft_pattern, 1)
-                first_maze = Maze(
-                    maze_map=self._grid_to_hex_str(grid),
+            def check_imperfect(g: list[list[int]]) -> bool:
+                temp_map = self._grid_to_hex_str(g)
+                m = Maze(
+                    maze_map=temp_map,
                     entry=self.config.ENTRY,
                     exit=self.config.EXIT
                 )
+                return len(m.maze_solutioneer(limit=2)) > 1
+
+            maximum = 10
+            while not check_imperfect(grid) and maximum > 0:
+                self._add_loops(grid, ft_pattern, 1)
                 maximum -= 1
-            if len(first_maze.maze_solutions) <= 1:
-                print("[WARNING]: Could not create multiple solutions """
+
+            if not check_imperfect(grid):
+                print("[ERROR] Could not verify multiple solutions "
                       "for this maze.")
 
         return Maze(
@@ -475,22 +480,22 @@ class GTMazeGenerator(DFSMazeGenerator):
             L = max(1, int((self.config.WIDTH * self.config.HEIGHT) * 0.02))  # TODO probar y cambiar si hace falta. igual hacer distinción labs pequeños/grandes
             self._add_loops(grid, ft_pattern, L)
 
-            first_maze = Maze(
-                maze_map=self._grid_to_hex_str(grid),
-                entry=self.config.ENTRY,
-                exit=self.config.EXIT
-            )
-            maximum = 10
-            while len(first_maze.maze_solutions) <= 1 and maximum > 0:
-                self._add_loops(grid, ft_pattern, 1)
-                first_maze = Maze(
-                    maze_map=self._grid_to_hex_str(grid),
+            def check_imperfect(g: list[list[int]]) -> bool:
+                temp_map = self._grid_to_hex_str(g)
+                m = Maze(
+                    maze_map=temp_map,
                     entry=self.config.ENTRY,
                     exit=self.config.EXIT
                 )
+                return len(m.maze_solutioneer(limit=2)) > 1
+
+            maximum = 10
+            while not check_imperfect(grid) and maximum > 0:
+                self._add_loops(grid, ft_pattern, 1)
                 maximum -= 1
-            if len(first_maze.maze_solutions) <= 1:
-                print("[WARNING]: Could not create multiple solutions """
+
+            if not check_imperfect(grid):
+                print("[ERROR] Could not verify multiple solutions "
                       "for this maze.")
 
         return Maze(
