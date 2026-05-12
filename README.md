@@ -61,6 +61,7 @@ project.
 ### Structure and format of your config file
 
 The structure of the configuration file is a KEY=VALUE format. Depending on the execution mode, the parser behavior changes:
+
 - Strict Mode (no flag; use_v2=False):
     All mandatory keys must be present, with valid values.
     No empty lines, extra whitespace nor lines not following the format are allowed.
@@ -70,6 +71,7 @@ The structure of the configuration file is a KEY=VALUE format. Depending on the 
     Default values are used if any key is missing or left empty.
 
 ### The chosen maze generation algorithms
+
 **DFS (Depth-First Search) / Recursive Backtracker** and **Growing Tree** are the two algorithms implemented in this project.
 
 The DFS algorithm works by carving paths from a starting cell, always moving to a random unvisited neighbour and pushing it onto a stack. When it reaches a dead end, it backtracks through the stack until it finds a cell with available neighbours, continuing until every cell has been visited.
@@ -77,6 +79,7 @@ The DFS algorithm works by carving paths from a starting cell, always moving to 
 The Growing Tree algorithm generalises DFS by maintaining an active cell list instead of a strict stack. It alternates between two selection strategies: most of the time it picks the most recently added cell (behaving like DFS), but every 4 steps in the same path it picks a random cell from the active list (behaving like Prim's). This produces a more varied texture while keeping long, winding corridors.
 
 ### The reason for the chosen maze generation algorithms
+
 **DFS** was chosen as the primary algorithm for the following reasons:
 
 - It produces **perfect mazes** by construction (DFS on a grid is equivalent to building a spanning tree), satisfying the `PERFECT=True` requirement natively.
