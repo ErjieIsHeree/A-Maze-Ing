@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import overload, Any
-from pydantic import BaseModel, Field, model_validator, ConfigDict
 import sys
 import random
 import copy
 from collections import deque
+
+try:
+    from pydantic import BaseModel, Field, model_validator, ConfigDict
+except Exception as err:
+    sys.exit(f"[ERROR]: {err}. Install it.")
 
 
 class MazeConfiguration(BaseModel):

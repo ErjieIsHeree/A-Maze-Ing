@@ -6,6 +6,14 @@ from mazegen import MazeGeneratorFactory, MazeGenerator, Maze
 from visualizator import visualize
 from configuration import get_config
 
+try:
+    from pydantic import BaseModel, Field, ConfigDict
+    BaseModel
+    Field
+    ConfigDict
+except Exception as err:
+    sys.exit(f"[ERROR]: {err}. Install it.")
+
 
 def write_output(maze_info: Maze, file: str, is_pro: bool = False) -> None:
     """Write maze data to a file.
