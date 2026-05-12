@@ -210,7 +210,8 @@ class MazeGenerator(ABC):
         if self.skip_pattern is False:
             xe, ye = self.config.ENTRY
             xx, yx = self.config.EXIT
-            if ((ye, xe) or (yx, xx)) in self._get_42_coords():
+            if ((ye, xe) in self._get_42_coords() or
+               (yx, xx) in self._get_42_coords()):
                 print("[ERROR]: Entry/Exit cells can't be "
                       "inside the 42 pattern.")
                 sys.exit(1)
